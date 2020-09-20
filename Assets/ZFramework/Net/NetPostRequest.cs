@@ -46,17 +46,17 @@ namespace ZFramework.Net
         public Dictionary<string, string> headers = null;
 
         /// <summary>
-        /// 回掉，事件id， 请求状态码，传过来的参数
+        /// 回掉，url， 请求状态码，传过来的参数
         /// </summary>
-        public Action<int, long, object[]> callback = null;
+        public Action<string, long, object[]> callback = null;
         /// <summary>
-        /// 回掉，事件id， 请求状态码，返回的数据流，传过来的参数
+        /// 回掉，url， 请求状态码，返回的数据流，传过来的参数
         /// </summary>
-        public Action<int, long, byte[], object[]> callbackByteArr = null;
+        public Action<string, long, byte[], object[]> callbackByteArr = null;
         /// <summary>
-        /// 回掉，事件id， 请求状态码，返回的数据流，传过来的参数
+        /// 回掉，url， 请求状态码，返回的数据流，传过来的参数
         /// </summary>
-        public Action<int, long, string, object[]> callbackStr = null;
+        public Action<string, long, string, object[]> callbackStr = null;
 
         /// <summary>
         /// 进度
@@ -78,7 +78,7 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -98,7 +98,7 @@ namespace ZFramework.Net
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<int, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -119,7 +119,7 @@ namespace ZFramework.Net
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null,  Action<int, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null,  Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -140,7 +140,7 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -161,7 +161,7 @@ namespace ZFramework.Net
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<int, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -182,7 +182,7 @@ namespace ZFramework.Net
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<int, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -203,7 +203,7 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -223,7 +223,7 @@ namespace ZFramework.Net
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<int, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -244,7 +244,7 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<int, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -265,7 +265,7 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -285,7 +285,7 @@ namespace ZFramework.Net
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<int, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -305,7 +305,7 @@ namespace ZFramework.Net
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr,Dictionary<string, string> headers = null, Action<int, long, string, object[]> callbackStr = null,Action<float> progress = null, params object[] args)
+        private NetPostRequest(int id, string url, byte[] postDataByteArr,Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null,Action<float> progress = null, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -334,15 +334,15 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, null, args);
-                        callbackStr?.Invoke(id, request.responseCode, null, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, null, args);
+                        callbackStr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, request.downloadHandler.data, args);
-                        callbackStr?.Invoke(id, request.responseCode, request.downloadHandler.text, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, request.downloadHandler.data, args);
+                        callbackStr?.Invoke(url, request.responseCode, request.downloadHandler.text, args);
                     }
                     break;
                 }
@@ -374,15 +374,15 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, null, args);
-                        callbackStr?.Invoke(id, request.responseCode, null, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, null, args);
+                        callbackStr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, request.downloadHandler.data, args);
-                        callbackStr?.Invoke(id, request.responseCode, request.downloadHandler.text, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, request.downloadHandler.data, args);
+                        callbackStr?.Invoke(url, request.responseCode, request.downloadHandler.text, args);
                     }
                     break;
                 }
@@ -415,15 +415,15 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, null, args);
-                        callbackStr?.Invoke(id, request.responseCode, null, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, null, args);
+                        callbackStr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, request.downloadHandler.data, args);
-                        callbackStr?.Invoke(id, request.responseCode, request.downloadHandler.text, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, request.downloadHandler.data, args);
+                        callbackStr?.Invoke(url, request.responseCode, request.downloadHandler.text, args);
                     }
                     break;
                 }
@@ -456,15 +456,15 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, null, args);
-                        callbackStr?.Invoke(id, request.responseCode, null, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, null, args);
+                        callbackStr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callback?.Invoke(id, request.responseCode, args);
-                        callbackByteArr?.Invoke(id, request.responseCode, request.downloadHandler.data, args);
-                        callbackStr?.Invoke(id, request.responseCode, request.downloadHandler.text, args);
+                        callback?.Invoke(url, request.responseCode, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, request.downloadHandler.data, args);
+                        callbackStr?.Invoke(url, request.responseCode, request.downloadHandler.text, args);
                     }
                     break;
                 }
@@ -513,7 +513,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, 
-            Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
         }
@@ -530,7 +530,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, 
-            Action<int, long, byte[], object[] > callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, byte[], object[] > callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
         }
@@ -547,7 +547,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null,  
-            Action<int, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
+            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
         }
@@ -564,7 +564,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, 
-            Action<int, long,object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long,object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
         }
@@ -581,7 +581,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic,  Dictionary<string, string> headers = null,  
-            Action<int, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
         }
@@ -598,7 +598,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null,  
-            Action<int, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
+            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
         }
@@ -615,7 +615,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, string postDataStr, Dictionary<string, string> headers = null, 
-            Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
         }
@@ -632,7 +632,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, string postDataStr, Dictionary<string, string> headers = null, 
-            Action<int, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
         }
@@ -649,7 +649,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, string postDataStr,  Dictionary<string, string> headers = null, 
-            Action<int, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
         }
@@ -666,7 +666,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, 
-            Action<int, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
         }
@@ -683,7 +683,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr,  Dictionary<string, string> headers = null, 
-            Action<int, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
+            Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
         }
@@ -700,7 +700,7 @@ namespace ZFramework.Net
         /// <param name="args"></param>
         /// <returns></returns>
         public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, 
-            Action<int, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
+            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
         {
             return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
         }

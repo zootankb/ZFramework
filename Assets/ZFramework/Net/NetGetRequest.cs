@@ -39,21 +39,13 @@ namespace ZFramework.Net
         public int timeout = 10;
 
         /// <summary>
-        /// 字符串回掉事件：事件ID，请求状态码，返回的字符串，传过来的参数
+        /// 字符串回掉事件：url，请求状态码，返回的字符串，传过来的参数
         /// </summary>
-        public Action<int, long, string, object[]> callbackStr = null;
+        public Action<string, long, string, object[]> callbackStr = null;
         /// <summary>
-        /// 数据流回掉事件：事件ID，请求状态码，返回的数据流，传过来的参数
+        /// 数据流回掉事件：url，请求状态码，返回的数据流，传过来的参数
         /// </summary>
-        public Action<int, long, byte[], object[]> callbackByteArr = null;
-        /// <summary>
-        /// Texture2D回掉事件：事件ID，请求状态码，返回的Texture2D，传过来的参数
-        /// </summary>
-        public Action<int, long, Texture2D, object[]> callbackTexture2D = null;
-        /// <summary>
-        /// Sprite回掉事件：事件ID，请求状态码，返回的Sprite，传过来的参数
-        /// </summary>
-        public Action<int, long, Sprite, object[]> callbackSprite = null;
+        public Action<string, long, byte[], object[]> callbackByteArr = null;
 
         /// <summary>
         /// 进度
@@ -76,7 +68,7 @@ namespace ZFramework.Net
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         private NetGetRequest(int id, string url ,  Dictionary<string, string> filter = null,  Dictionary<string, string> headers = null, 
-            Action<int, long, string, object[]> callbackStr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
+            Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
         {
             this.id = id;
             this.url = url;
@@ -98,57 +90,13 @@ namespace ZFramework.Net
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         private NetGetRequest(int id, string url, Dictionary<string, string> filter = null, Dictionary<string, string> headers = null,
-            Action<int, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
+            Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
         {
             this.id = id;
             this.url = url;
             this.filter = filter;
             this.headers = headers;
             this.callbackByteArr = callbackByteArr;
-            this.progress = progress;
-            this.timeout = timeout;
-            this.args = args;
-        }
-
-        /// <summary>
-        /// Texture2D GET请求
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callbackTexture2D"></param>
-        /// <param name="progress"></param>
-        private NetGetRequest(int id, string url, Dictionary<string, string> filter = null, Dictionary<string, string> headers = null, 
-            Action<int, long, Texture2D, object[]> callbackTexture2D = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
-        {
-            this.id = id;
-            this.url = url;
-            this.filter = filter;
-            this.headers = headers;
-            this.callbackTexture2D = callbackTexture2D;
-            this.progress = progress;
-            this.timeout = timeout;
-            this.args = args;
-        }
-
-        /// <summary>
-        /// Sprite GET请求
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callbackSprite"></param>
-        /// <param name="progress"></param>
-        private NetGetRequest(int id, string url, Dictionary<string, string> filter = null,Dictionary<string, string> headers = null, 
-            Action<int, long, Sprite, object[]> callbackSprite = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
-        {
-            this.id = id;
-            this.url = url;
-            this.filter = filter;
-            this.headers = headers;
-            this.callbackSprite = callbackSprite;
             this.progress = progress;
             this.timeout = timeout;
             this.args = args;
@@ -163,7 +111,7 @@ namespace ZFramework.Net
         /// <param name="url"></param>
         /// <param name="filter"></param>
         /// <param name="headers"></param>
-        /// <param name="callback">Action<EventID, long, byte[]>:事件id， 请求状态码，返回的字符串</param>
+        /// <param name="callback">Action<EventID, long, byte[]>:url， 请求状态码，返回的字符串</param>
         /// <param name="progress"></param>
         /// <returns></returns>
         private IEnumerator IEnumGetStr()
@@ -196,11 +144,11 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callbackStr?.Invoke(id, request.responseCode, null, args);
+                        callbackStr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callbackStr?.Invoke(id, request.responseCode, request.downloadHandler.text, args);
+                        callbackStr?.Invoke(url, request.responseCode, request.downloadHandler.text, args);
                     }
                     break;
                 }
@@ -216,7 +164,7 @@ namespace ZFramework.Net
         /// <param name="url"></param>
         /// <param name="filter"></param>
         /// <param name="headers"></param>
-        /// <param name="callback">Action<EventID, long, byte[]>:事件id， 请求状态码，返回的数据流</param>
+        /// <param name="callback">Action<EventID, long, byte[]>:url， 请求状态码，返回的数据流</param>
         /// <param name="progress"></param>
         /// <returns></returns>
         private IEnumerator IEnumGetByteArr()
@@ -249,120 +197,11 @@ namespace ZFramework.Net
                 {
                     if (request.isHttpError || request.isNetworkError)
                     {
-                        callbackByteArr?.Invoke(id, request.responseCode, null, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, null, args);
                     }
                     else
                     {
-                        callbackByteArr?.Invoke(id, request.responseCode, request.downloadHandler.data, args);
-                    }
-                    break;
-                }
-                yield return new WaitForEndOfFrame();
-            }
-            request.Dispose();
-        }
-
-        /// <summary>
-        /// 下载Texture
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callback">Action<EventID, long, byte[]>:事件id， 请求状态码，返回的Texture2D</param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        private IEnumerator IEnumGetTexture2D()
-        {
-            if (filter != null)
-            {
-                url += "?";
-                bool first = false;
-                foreach (var kv in filter)
-                {
-                    url += string.Format("{0}{1}={2}", first ? string.Empty : "&", kv.Key, kv.Value);
-                    first = true;
-                }
-            }
-            UnityWebRequest request = new UnityWebRequest(url);
-            DownloadHandlerTexture dht = new DownloadHandlerTexture();
-            request.timeout = timeout;
-            request.downloadHandler = dht;
-            if (headers != null)
-            {
-                foreach (var kv in headers)
-                {
-                    request.SetRequestHeader(kv.Key, kv.Value);
-                }
-            }
-            UnityWebRequestAsyncOperation ao = request.SendWebRequest();
-            while (true)
-            {
-                progress?.Invoke(ao.progress);
-                if (request.isDone)
-                {
-                    if (request.isHttpError || request.isNetworkError)
-                    {
-                        callbackTexture2D?.Invoke(id, request.responseCode, null, args);
-                    }
-                    else
-                    {
-                        callbackTexture2D?.Invoke(id, request.responseCode, dht.texture, args);
-                    }
-                    break;
-                }
-                yield return new WaitForEndOfFrame();
-            }
-            request.Dispose();
-        }
-
-        /// <summary>
-        /// 下载Sprite
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callback">Action<EventID, long, byte[]>:事件id， 请求状态码，返回的Sprite</param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        private IEnumerator IEnumGetSprite()
-        {
-            if (filter != null)
-            {
-                url += "?";
-                bool first = false;
-                foreach (var kv in filter)
-                {
-                    url += string.Format("{0}{1}={2}", first ? string.Empty : "&", kv.Key, kv.Value);
-                    first = true;
-                }
-            }
-            UnityWebRequest request = new UnityWebRequest(url);
-            DownloadHandlerTexture dht = new DownloadHandlerTexture();
-            request.timeout = timeout;
-            request.downloadHandler = dht;
-            if (headers != null)
-            {
-                foreach (var kv in headers)
-                {
-                    request.SetRequestHeader(kv.Key, kv.Value);
-                }
-            }
-            UnityWebRequestAsyncOperation ao = request.SendWebRequest();
-            while (true)
-            {
-                progress?.Invoke(ao.progress);
-                if (request.isDone)
-                {
-                    if (request.isHttpError || request.isNetworkError)
-                    {
-                        callbackSprite?.Invoke(id, request.responseCode, null, args);
-                    }
-                    else
-                    {
-                        Sprite sprite = Sprite.Create(dht.texture, new Rect(0, 0, dht.texture.width, dht.texture.height), Vector2.one / 2);
-                        callbackSprite?.Invoke(id, request.responseCode, sprite, args);
+                        callbackByteArr?.Invoke(url, request.responseCode, request.downloadHandler.data, args);
                     }
                     break;
                 }
@@ -387,14 +226,6 @@ namespace ZFramework.Net
             {
                 yield return IEnumGetByteArr();
             }
-            else if (callbackTexture2D != null)
-            {
-                yield return IEnumGetTexture2D();
-            }
-            else if (callbackSprite != null)
-            {
-                yield return IEnumGetSprite();
-            }
         }
         #endregion
 
@@ -412,7 +243,7 @@ namespace ZFramework.Net
         public static NetGetRequest Allocate(int id, string url,
             Dictionary<string, string> filter = null,
             Dictionary<string, string> headers = null,
-            Action<int, long, string, object[]> callbackStr = null,
+            Action<string, long, string, object[]> callbackStr = null,
             Action<float> progress = null, params object[] args)
         {
             return new NetGetRequest(id, url, filter, headers, callbackStr, progress, TIME_OUT, args);
@@ -431,48 +262,10 @@ namespace ZFramework.Net
         public static NetGetRequest Allocate(int id, string url,
             Dictionary<string, string> filter = null,
             Dictionary<string, string> headers = null,
-            Action<int, long, byte[], object[]> callbackByteArr = null,
+            Action<string, long, byte[], object[]> callbackByteArr = null,
             Action<float> progress = null, params object[] args)
         {
             return new NetGetRequest(id, url, filter, headers, callbackByteArr, progress, TIME_OUT, args);
-        }
-
-        /// <summary>
-        /// Texture2D方式 分配一个空间
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callbackTexture2D"></param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        public static NetGetRequest Allocate(int id, string url,
-            Dictionary<string, string> filter = null,
-            Dictionary<string, string> headers = null,
-            Action<int, long, Texture2D, object[]> callbackTexture2D = null,
-            Action<float> progress = null, params object[] args)
-        {
-            return new NetGetRequest(id, url, filter, headers, callbackTexture2D, progress, TIME_OUT, args);
-        }
-
-        /// <summary>
-        /// Sprite方式 分配一个空间
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="filter"></param>
-        /// <param name="headers"></param>
-        /// <param name="callbackSprite"></param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        public static NetGetRequest Allocate(int id, string url,
-            Dictionary<string, string> filter = null,
-            Dictionary<string, string> headers = null,
-            Action<int, long, Sprite, object[]> callbackSprite = null,
-            Action<float> progress = null, params object[] args)
-        {
-            return new NetGetRequest(id, url, filter, headers, callbackSprite, progress, TIME_OUT, args);
         }
         #endregion
     }
