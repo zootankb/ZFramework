@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using ZFramework.Log;
 
 namespace ZFramework.Net
 {
@@ -309,6 +310,7 @@ namespace ZFramework.Net
                         callback?.Invoke(url, request.responseCode, args);
                         callbackByteArr?.Invoke(url, request.responseCode, null, args);
                         callbackStr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("POST请求失败", request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {
@@ -349,6 +351,7 @@ namespace ZFramework.Net
                         callback?.Invoke(url, request.responseCode, args);
                         callbackByteArr?.Invoke(url, request.responseCode, null, args);
                         callbackStr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("POST请求失败", request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {
@@ -390,6 +393,7 @@ namespace ZFramework.Net
                         callback?.Invoke(url, request.responseCode, args);
                         callbackByteArr?.Invoke(url, request.responseCode, null, args);
                         callbackStr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("POST请求失败", request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {
@@ -431,6 +435,7 @@ namespace ZFramework.Net
                         callback?.Invoke(url, request.responseCode, args);
                         callbackByteArr?.Invoke(url, request.responseCode, null, args);
                         callbackStr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("POST请求失败",  request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {

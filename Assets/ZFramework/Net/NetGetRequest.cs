@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using ZFramework.Log;
 
 namespace ZFramework.Net
 {
@@ -137,6 +138,7 @@ namespace ZFramework.Net
                     if (request.isHttpError || request.isNetworkError)
                     {
                         callbackStr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("GET请求失败", request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {
@@ -190,6 +192,7 @@ namespace ZFramework.Net
                     if (request.isHttpError || request.isNetworkError)
                     {
                         callbackByteArr?.Invoke(url, request.responseCode, null, args);
+                        LogOperator.AddNetErrorRecord("GET请求失败", request.responseCode, request.error, url, request.isHttpError.ToString(), request.isNetworkError.ToString());
                     }
                     else
                     {
