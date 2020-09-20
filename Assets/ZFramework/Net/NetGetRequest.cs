@@ -18,10 +18,6 @@ namespace ZFramework.Net
 
         #region Field
         /// <summary>
-        /// 消息id
-        /// </summary>
-        public int id;
-        /// <summary>
         /// url
         /// </summary>
         public string url = string.Empty;
@@ -61,16 +57,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 字符串 GET请求
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="filter"></param>
         /// <param name="headers"></param>
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
-        private NetGetRequest(int id, string url ,  Dictionary<string, string> filter = null,  Dictionary<string, string> headers = null, 
+        private NetGetRequest( string url ,  Dictionary<string, string> filter = null,  Dictionary<string, string> headers = null, 
             Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.filter = filter;
             this.headers = headers;
@@ -83,16 +77,14 @@ namespace ZFramework.Net
         /// <summary>
         /// byte[] GET请求
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="filter"></param>
         /// <param name="headers"></param>
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
-        private NetGetRequest(int id, string url, Dictionary<string, string> filter = null, Dictionary<string, string> headers = null,
+        private NetGetRequest( string url, Dictionary<string, string> filter = null, Dictionary<string, string> headers = null,
             Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, int timeout = TIME_OUT, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.filter = filter;
             this.headers = headers;
@@ -240,13 +232,13 @@ namespace ZFramework.Net
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static NetGetRequest Allocate(int id, string url,
+        public static NetGetRequest Allocate( string url,
             Dictionary<string, string> filter = null,
             Dictionary<string, string> headers = null,
             Action<string, long, string, object[]> callbackStr = null,
             Action<float> progress = null, params object[] args)
         {
-            return new NetGetRequest(id, url, filter, headers, callbackStr, progress, TIME_OUT, args);
+            return new NetGetRequest(url, filter, headers, callbackStr, progress, TIME_OUT, args);
         }
 
         /// <summary>
@@ -259,13 +251,13 @@ namespace ZFramework.Net
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static NetGetRequest Allocate(int id, string url,
+        public static NetGetRequest Allocate( string url,
             Dictionary<string, string> filter = null,
             Dictionary<string, string> headers = null,
             Action<string, long, byte[], object[]> callbackByteArr = null,
             Action<float> progress = null, params object[] args)
         {
-            return new NetGetRequest(id, url, filter, headers, callbackByteArr, progress, TIME_OUT, args);
+            return new NetGetRequest(url, filter, headers, callbackByteArr, progress, TIME_OUT, args);
         }
         #endregion
     }

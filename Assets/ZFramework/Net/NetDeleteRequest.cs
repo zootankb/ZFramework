@@ -13,10 +13,6 @@ namespace ZFramework.Net
     {
         #region Field
         /// <summary>
-        /// 消息id
-        /// </summary>
-        public int id;
-        /// <summary>
         /// url
         /// </summary>
         public string url = string.Empty;
@@ -59,9 +55,8 @@ namespace ZFramework.Net
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetDeleteRequest(int id, string url, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetDeleteRequest(string url, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.headers = headers;
             this.callback = callback;
@@ -72,14 +67,12 @@ namespace ZFramework.Net
         /// <summary>
         /// 返回数据流 构造器
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
-        private NetDeleteRequest(int id, string url, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetDeleteRequest(string url, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.headers = headers;
             this.callbackByteArr = callbackByteArr;
@@ -90,14 +83,12 @@ namespace ZFramework.Net
         /// <summary>
         /// 返回字符串 构造器
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
-        private NetDeleteRequest(int id, string url, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetDeleteRequest( string url, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.headers = headers;
             this.callbackStr = callbackStr;
@@ -163,46 +154,43 @@ namespace ZFramework.Net
         /// <summary>
         /// 返回状态码，分配内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static NetDeleteRequest Allocate(int id, string url, Dictionary<string, string> headers = null,
-            Action<string, long, object[]> callback = null, Action<float> progress = null)
+        public static NetDeleteRequest Allocate( string url, Dictionary<string, string> headers = null,
+            Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetDeleteRequest(id, url, headers, callback, progress);
+            return new NetDeleteRequest(url, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 返回数据流 分配内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static NetDeleteRequest Allocate(int id, string url, Dictionary<string, string> headers = null,
-            Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null)
+        public static NetDeleteRequest Allocate( string url, Dictionary<string, string> headers = null,
+            Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            return new NetDeleteRequest(id, url, headers, callbackByteArr, progress);
+            return new NetDeleteRequest( url, headers, callbackByteArr, progress, args);
         }
 
         /// <summary>
         /// 返回字符串 分配内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <returns></returns>
-        public static NetDeleteRequest Allocate(int id, string url, Dictionary<string, string> headers = null,
-           Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null)
+        public static NetDeleteRequest Allocate( string url, Dictionary<string, string> headers = null,
+           Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            return new NetDeleteRequest(id, url, headers, callbackStr, progress);
+            return new NetDeleteRequest(url, headers, callbackStr, progress, args);
         }
 
         #endregion

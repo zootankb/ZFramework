@@ -57,6 +57,16 @@ namespace ZFramework.Res
                 callbackAb?.Invoke(url, 0, Res.ResTmpSave.GetContentT<AssetBundle>(url), args);
                 return;
             }
+            else if (Res.ResTmpSave.HasEventT<AssetBundle>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackAb);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<AssetBundle>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackAb);
+                return;
+            }
             Res.LocalResPath.DIR_ASSETBUNDLE_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.Assetbundle;
             string localFileName = Path.GetFileName(url);
@@ -157,6 +167,16 @@ namespace ZFramework.Res
             {
                 progress?.Invoke(1.0f);
                 callbackTexture2D?.Invoke(url, 0, Res.ResTmpSave.GetContentT<Texture2D>(url), args);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<Texture2D>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackTexture2D);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<Texture2D>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackTexture2D);
                 return;
             }
             Res.LocalResPath.DIR_TEXTURE2D_PATH.CheckOrCreateDir();
@@ -277,6 +297,16 @@ namespace ZFramework.Res
                 callbackSprite?.Invoke(url, 0, Res.ResTmpSave.GetContentT<Sprite>(url), args);
                 return;
             }
+            else if (Res.ResTmpSave.HasEventT<Sprite>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackSprite);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<Sprite>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackSprite);
+                return;
+            }
             Res.LocalResPath.DIR_TEXTURE2D_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.Texture2D;
             string localFileName = Path.GetFileName(url);
@@ -395,6 +425,16 @@ namespace ZFramework.Res
                 callbackTextAsset?.Invoke(url, 0, Res.ResTmpSave.GetContentT<TextAsset>(url), args);
                 return;
             }
+            else if (Res.ResTmpSave.HasEventT<TextAsset>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackTextAsset);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<TextAsset>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackTextAsset);
+                return;
+            }
             Res.LocalResPath.DIR_TEXTASSET_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.TextAsset;
             string localFileName = Path.GetFileName(url);
@@ -493,6 +533,16 @@ namespace ZFramework.Res
             {
                 progress?.Invoke(1.0f);
                 callbackAudioClip?.Invoke(url, 0, Res.ResTmpSave.GetContentT<AudioClip>(url), args);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<AudioClip>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackAudioClip);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<AudioClip>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackAudioClip);
                 return;
             }
             Res.LocalResPath.DIR_AUDIOCLIP_PATH.CheckOrCreateDir();
@@ -599,6 +649,16 @@ namespace ZFramework.Res
             {
                 progress?.Invoke(1.0f);
                 callbackVideoClip?.Invoke(url, 0, ResTmpSave.GetContentT<ResTmpSave.NetVideoClip>(url), args);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<ResTmpSave.NetVideoClip>(filepath))
+            {
+                Res.ResTmpSave.AddEvent(filepath, callbackVideoClip);
+                return;
+            }
+            else if (Res.ResTmpSave.HasEventT<ResTmpSave.NetVideoClip>(url))
+            {
+                Res.ResTmpSave.AddEvent(url, callbackVideoClip);
                 return;
             }
             Res.LocalResPath.DIR_VIDEOCLIP_PATH.CheckOrCreateDir();

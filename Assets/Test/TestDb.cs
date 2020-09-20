@@ -10,6 +10,7 @@ using System.Collections;
 using ZFramework.SqliteStore;
 using ZFramework.Res;
 using ZFramework.ClassExt;
+using ZFramework.Net;
 
 public class TestDb : MonoBehaviour
 {
@@ -122,13 +123,21 @@ public class TestDb : MonoBehaviour
         //    AudioSource.PlayClipAtPoint(aclip, transform.position);
         //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        NetResMgr.DownloadVideoClip("http://127.0.0.1:8000/static/AppOne/123.mp4", (url, code, vclip, objs) =>
-        {
-            print(url);
-            print(code);
-            print(objs[0]);
-            vplay.url = vclip.path;
-        }, (progress) => { print(progress); }, new object[] { "测试下载" });
+        //NetResMgr.DownloadAudioClip("http://127.0.0.1:8000/static/AppOne/123.wav", (url, code, aclip, objs) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(objs[0]);
+        //    AudioSource.PlayClipAtPoint(aclip, transform.position);
+        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+
+        //NetResMgr.DownloadVideoClip("http://127.0.0.1:8000/static/AppOne/123.mp4", (url, code, vclip, objs) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(objs[0]);
+        //    vplay.url = vclip.path;
+        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
         //NetResMgr.DownloadAB("http://127.0.0.1:8000/static/AppOne/proto70+gdx1+chctcv.ab", (url, code, ab, objs) =>
         //{
@@ -145,6 +154,38 @@ public class TestDb : MonoBehaviour
         //        print("ab包为空");
         //    }
         //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+
+        //NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(content);
+        //    print(args[0]);
+        //}, (pro) => { print(pro); }, "测试链接");
+
+        //NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(content);
+        //    print(args[0]);
+        //}, (pro) => { print(pro); }, "测试链接");
+
+        //NetMgr.GetByteArr("https://www.baidu.com", null, null, (url, code, content, args) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(content.Length);
+        //    print(args[0]);
+        //}, (pro) => { print(pro); }, "测试链接");
+
+        //NetMgr.GetByteArr("https://www.baidu.com", null, null, (url, code, content, args) =>
+        //{
+        //    print(url);
+        //    print(code);
+        //    print(content.Length);
+        //    print(args[0]);
+        //}, (pro) => { print(pro); }, "测试链接");
     }
 
     public Image img = null;

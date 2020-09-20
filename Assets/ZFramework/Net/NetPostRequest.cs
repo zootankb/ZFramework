@@ -16,10 +16,6 @@ namespace ZFramework.Net
     {
         #region Field
         /// <summary>
-        /// 消息id
-        /// </summary>
-        public int id;
-        /// <summary>
         /// url
         /// </summary>
         public string url = string.Empty;
@@ -72,15 +68,13 @@ namespace ZFramework.Net
         /// <summary>
         /// 内部通用构造器
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataForm = postDataForm;
             this.headers = headers;
@@ -91,16 +85,14 @@ namespace ZFramework.Net
         /// <summary>
         /// Form POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataForm"></param>
         /// <param name="headers"></param>
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataForm = postDataForm;
             this.callbackByteArr = callbackByteArr;
@@ -112,16 +104,14 @@ namespace ZFramework.Net
         /// <summary>
         /// Form POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataForm"></param>
         /// <param name="headers"></param>
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null,  Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, WWWForm postDataForm, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataForm = postDataForm;
             this.callbackStr = callbackStr;
@@ -133,16 +123,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据字典 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataDic"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataDic = postDataDic;
             this.callback = callback;
@@ -154,16 +142,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据字典 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataDic"></param>
         /// <param name="headers"></param>
         /// <param name="callbackByteArr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataDic = postDataDic;
             this.callbackByteArr = callbackByteArr;
@@ -175,16 +161,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据字典 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataDic"></param>
         /// <param name="headers"></param>
         /// <param name="callbackStr"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataDic = postDataDic;
             this.callbackStr = callbackStr;
@@ -196,16 +180,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 字符串 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataStr = postDataStr;
             this.headers = headers;
@@ -217,15 +199,13 @@ namespace ZFramework.Net
         /// <summary>
         /// 字符串 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataStr = postDataStr;
             this.headers = headers;
@@ -237,16 +217,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 字符串 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, string postDataStr, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataStr = postDataStr;
             this.headers = headers;
@@ -258,16 +236,14 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据流 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataByteArr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
         /// <param name="args"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataByteArr = postDataByteArr;
             this.headers = headers;
@@ -279,15 +255,13 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据流 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, byte[], object[]> callbackByteArr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataByteArr = postDataByteArr;
             this.headers = headers;
@@ -299,15 +273,13 @@ namespace ZFramework.Net
         /// <summary>
         /// 数据流 POST方式
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
         /// <param name="callback"></param>
         /// <param name="progress"></param>
-        private NetPostRequest(int id, string url, byte[] postDataByteArr,Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null,Action<float> progress = null, params object[] args)
+        private NetPostRequest(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, Action<string, long, string, object[]> callbackStr = null, Action<float> progress = null, params object[] args)
         {
-            this.id = id;
             this.url = url;
             this.postDataByteArr = postDataByteArr;
             this.headers = headers;
@@ -481,11 +453,11 @@ namespace ZFramework.Net
         /// <returns></returns>
         public IEnumerator IEnumStart()
         {
-            if(postDataForm != null)
+            if (postDataForm != null)
             {
                 yield return IEnumPostWWWForm();
             }
-            else if(postDataDic != null)
+            else if (postDataDic != null)
             {
                 yield return IEnumPostDic();
             }
@@ -504,7 +476,6 @@ namespace ZFramework.Net
         /// <summary>
         /// WWWForm方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataForm"></param>
         /// <param name="headers"></param>
@@ -512,16 +483,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, WWWForm postDataForm, Dictionary<string, string> headers = null,
             Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataForm, headers, callback, progress, args);
         }
 
         /// <summary>
         /// WWWForm方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataForm"></param>
         /// <param name="headers"></param>
@@ -529,67 +499,31 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null, 
-            Action<string, long, byte[], object[] > callback = null, Action<float> progress = null, params object[] args)
-        {
-            return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
-        }
-
-        /// <summary>
-        /// WWWForm方式 分配一个内存空间
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="postDataForm"></param>
-        /// <param name="headers"></param>
-        /// <param name="callback"></param>
-        /// <param name="progress"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, WWWForm postDataForm, Dictionary<string, string> headers = null,  
-            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
-        {
-            return new NetPostRequest(id, url, postDataForm, headers, callback, progress, args);
-        }
-
-        /// <summary>
-        /// 数据字典方式 分配一个内存空间
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="postDataDic"></param>
-        /// <param name="headers"></param>
-        /// <param name="callback"></param>
-        /// <param name="progress"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null, 
-            Action<string, long,object[]> callback = null, Action<float> progress = null, params object[] args)
-        {
-            return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
-        }
-
-        /// <summary>
-        /// 数据字典方式 分配一个内存空间
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="url"></param>
-        /// <param name="postDataDic"></param>
-        /// <param name="headers"></param>
-        /// <param name="callback"></param>
-        /// <param name="progress"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic,  Dictionary<string, string> headers = null,  
+        public static NetPostRequest Allocate(string url, WWWForm postDataForm, Dictionary<string, string> headers = null,
             Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataForm, headers, callback, progress, args);
+        }
+
+        /// <summary>
+        /// WWWForm方式 分配一个内存空间
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postDataForm"></param>
+        /// <param name="headers"></param>
+        /// <param name="callback"></param>
+        /// <param name="progress"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static NetPostRequest Allocate(string url, WWWForm postDataForm, Dictionary<string, string> headers = null,
+            Action<string, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
+        {
+            return new NetPostRequest(url, postDataForm, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 数据字典方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataDic"></param>
         /// <param name="headers"></param>
@@ -597,16 +531,47 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null,  
-            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
+        public static NetPostRequest Allocate(string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null,
+            Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataDic, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataDic, headers, callback, progress, args);
         }
-       
+
+        /// <summary>
+        /// 数据字典方式 分配一个内存空间
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postDataDic"></param>
+        /// <param name="headers"></param>
+        /// <param name="callback"></param>
+        /// <param name="progress"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static NetPostRequest Allocate(string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null,
+            Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
+        {
+            return new NetPostRequest(url, postDataDic, headers, callback, progress, args);
+        }
+
+        /// <summary>
+        /// 数据字典方式 分配一个内存空间
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="postDataDic"></param>
+        /// <param name="headers"></param>
+        /// <param name="callback"></param>
+        /// <param name="progress"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static NetPostRequest Allocate( string url, Dictionary<string, string> postDataDic, Dictionary<string, string> headers = null,
+            Action<string, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
+        {
+            return new NetPostRequest(url, postDataDic, headers, callback, progress, args);
+        }
+
         /// <summary>
         ///  数据字符串方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
@@ -614,16 +579,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, string postDataStr, Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, string postDataStr, Dictionary<string, string> headers = null,
             Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataStr, headers, callback, progress, args);
         }
 
         /// <summary>
         ///  数据字符串方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
@@ -631,16 +595,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, string postDataStr, Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, string postDataStr, Dictionary<string, string> headers = null,
             Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataStr, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 数据字符串方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataStr"></param>
         /// <param name="headers"></param>
@@ -648,16 +611,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, string postDataStr,  Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, string postDataStr, Dictionary<string, string> headers = null,
             Action<string, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataStr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataStr, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 数据流方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataByteArr"></param>
         /// <param name="headers"></param>
@@ -665,16 +627,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null,
             Action<string, long, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataByteArr, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 数据流方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataByteArr"></param>
         /// <param name="headers"></param>
@@ -682,16 +643,15 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr,  Dictionary<string, string> headers = null, 
+        public static NetPostRequest Allocate(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null,
             Action<string, long, byte[], object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataByteArr, headers, callback, progress, args);
         }
 
         /// <summary>
         /// 数据流方式 分配一个内存空间
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="url"></param>
         /// <param name="postDataByteArr"></param>
         /// <param name="headers"></param>
@@ -699,10 +659,10 @@ namespace ZFramework.Net
         /// <param name="progress"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static NetPostRequest Allocate(int id, string url, byte[] postDataByteArr, Dictionary<string, string> headers = null, 
-            Action<string, long, string, object[]> callback = null,  Action<float> progress = null, params object[] args)
+        public static NetPostRequest Allocate(string url, byte[] postDataByteArr, Dictionary<string, string> headers = null,
+            Action<string, long, string, object[]> callback = null, Action<float> progress = null, params object[] args)
         {
-            return new NetPostRequest(id, url, postDataByteArr, headers, callback, progress, args);
+            return new NetPostRequest(url, postDataByteArr, headers, callback, progress, args);
         }
         #endregion
     }

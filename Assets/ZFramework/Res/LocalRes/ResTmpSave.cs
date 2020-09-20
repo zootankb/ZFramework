@@ -326,6 +326,41 @@ namespace ZFramework.Res
         }
 
         /// <summary>
+        /// 是否拥有正在下载的事件
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static bool HasEventT<T>(string url) where T : UnityEngine.Object
+        {
+            if (typeof(AssetBundle) == typeof(T))
+            {
+                return abInfo.HasEventT(url);
+            }
+            else if (typeof(Texture2D) == typeof(T))
+            {
+                return t2dInfo.HasEventT(url);
+            }
+            else if (typeof(Sprite) == typeof(T))
+            {
+                return sprInfo.HasEventT(url);
+            }
+            else if (typeof(TextAsset) == typeof(T))
+            {
+                return txtatInfo.HasEventT(url);
+            }
+            else if (typeof(AudioClip) == typeof(T))
+            {
+                return audioInfo.HasEventT(url);
+            }
+            else if (typeof(NetVideoClip) == typeof(T))
+            {
+                return videoInfo.HasEventT(url);
+            }
+            return false;
+        }
+
+        /// <summary>
         /// 清除内存中指定类型的资源
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -439,6 +474,16 @@ namespace ZFramework.Res
             }
 
             /// <summary>
+            /// 是否存在正在下载的资源事件
+            /// </summary>
+            /// <param name="url"></param>
+            /// <returns></returns>
+            public bool HasEventT(string url)
+            {
+                return eventDic.ContainsKey(url);
+            }
+
+            /// <summary>
             /// 判断是否存有资源
             /// </summary>
             /// <param name="url"></param>
@@ -475,7 +520,7 @@ namespace ZFramework.Res
             }
 
             /// <summary>
-            /// 
+            /// 移除事件
             /// </summary>
             /// <param name="url"></param>
             /// <param name="e"></param>
