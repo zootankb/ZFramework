@@ -88,96 +88,95 @@ public class TestDb : MonoBehaviour
     [Obsolete]
     void Test()
     {
-        //NetResMgr.DownloadTexture2D("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, t2d, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    rimg.texture = t2d;
+        NetResMgr.DownloadTexture2D("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, t2d, objs) =>
+        {
+            print(url);
+            print(code);
+            print(objs[0]);
+            rimg.texture = t2d;
 
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+        }, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //NetResMgr.DownloadSprite("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, sprite, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    img.sprite = sprite;
+        NetResMgr.DownloadSprite("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, sprite, objs) =>
+        {
+            print(url);
+            print(code);
+            print(objs[0]);
+            img.sprite = sprite;
+        }, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetResMgr.DownloadTextAsset("http://127.0.0.1:8000/static/AppOne/123.txt", (url, code, txtast, objs) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(objs[0]);
+            //    print(txtast.text);
 
-        //NetResMgr.DownloadTextAsset("http://127.0.0.1:8000/static/AppOne/123.txt", (url, code, txtast, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    print(txtast.text);
+            //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetResMgr.DownloadAudioClip("http://127.0.0.1:8000/static/AppOne/123.wav", (url, code, aclip, objs) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(objs[0]);
+            //    AudioSource.PlayClipAtPoint(aclip, transform.position);
+            //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //NetResMgr.DownloadAudioClip("http://127.0.0.1:8000/static/AppOne/123.wav", (url, code, aclip, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    AudioSource.PlayClipAtPoint(aclip, transform.position);
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetResMgr.DownloadAudioClip("http://127.0.0.1:8000/static/AppOne/123.wav", (url, code, aclip, objs) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(objs[0]);
+            //    AudioSource.PlayClipAtPoint(aclip, transform.position);
+            //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //NetResMgr.DownloadAudioClip("http://127.0.0.1:8000/static/AppOne/123.wav", (url, code, aclip, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    AudioSource.PlayClipAtPoint(aclip, transform.position);
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetResMgr.DownloadVideoClip("http://127.0.0.1:8000/static/AppOne/123.mp4", (url, code, vclip, objs) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(objs[0]);
+            //    vplay.url = vclip.path;
+            //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //NetResMgr.DownloadVideoClip("http://127.0.0.1:8000/static/AppOne/123.mp4", (url, code, vclip, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    vplay.url = vclip.path;
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetResMgr.DownloadAB("http://127.0.0.1:8000/static/AppOne/proto70+gdx1+chctcv.ab", (url, code, ab, objs) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(objs[0]);
+            //    if (ab != null)
+            //    {
+            //        GameObject goPre = ab.LoadAsset(Path.GetFileNameWithoutExtension(url)) as GameObject;
+            //        GameObject go = Instantiate(goPre, Vector3.zero, Quaternion.identity);
+            //    }
+            //    else
+            //    {
+            //        print("ab包为空");
+            //    }
+            //}, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        //NetResMgr.DownloadAB("http://127.0.0.1:8000/static/AppOne/proto70+gdx1+chctcv.ab", (url, code, ab, objs) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(objs[0]);
-        //    if (ab != null)
-        //    {
-        //        GameObject goPre = ab.LoadAsset(Path.GetFileNameWithoutExtension(url)) as GameObject;
-        //        GameObject go = Instantiate(goPre, Vector3.zero, Quaternion.identity);
-        //    }
-        //    else
-        //    {
-        //        print("ab包为空");
-        //    }
-        //}, (progress) => { print(progress); }, new object[] { "测试下载" });
+            //NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
+            //{
+            //    print(url);
+            //    print(code);
+            //    print(content);
+            //    print(args[0]);
+            //}, (pro) => { print(pro); }, "测试链接");
 
-        //NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(content);
-        //    print(args[0]);
-        //}, (pro) => { print(pro); }, "测试链接");
+            NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
+        {
+            print(url);
+            print(code);
+            print(content);
+            print(args[0]);
+        }, (pro) => { print(pro); }, "测试链接");
 
-        //NetMgr.GetString("https://www.baidu.com", null, null, (url, code, content, args) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(content);
-        //    print(args[0]);
-        //}, (pro) => { print(pro); }, "测试链接");
-
-        //NetMgr.GetByteArr("https://www.baidu.com", null, null, (url, code, content, args) =>
-        //{
-        //    print(url);
-        //    print(code);
-        //    print(content.Length);
-        //    print(args[0]);
-        //}, (pro) => { print(pro); }, "测试链接");
+        NetMgr.GetByteArr("https://www.baidu.com", null, null, (url, code, content, args) =>
+        {
+            print(url);
+            print(code);
+            print(content.Length);
+            print(args[0]);
+        }, (pro) => { print(pro); }, "测试链接");
 
         //NetMgr.GetByteArr("https://www.baidu.com", null, null, (url, code, content, args) =>
         //{
