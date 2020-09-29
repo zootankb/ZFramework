@@ -67,6 +67,11 @@ namespace ZFramework.Editor
         private int currSelectDb = 0;
 
         /// <summary>
+        /// 上次选择的数据库的索引
+        /// </summary>
+        private int oriSelectDb = -1;
+
+        /// <summary>
         /// 选择的数据库的所有表
         /// </summary>
         private List<string> tablesInSelectedDb = new List<string>();
@@ -77,9 +82,19 @@ namespace ZFramework.Editor
         private int currSelectTableIndex = 0;
 
         /// <summary>
+        /// 上次选择的表的索引
+        /// </summary>
+        private int oriSelectTableIndex = -1;
+
+        /// <summary>
         /// 当前选择的表的记录
         /// </summary>
         private DataTable currSelectTable = null;
+
+        /// <summary>
+        /// 对应上面的currSelectTable数据，把选择的操作放到这里面
+        /// </summary>
+        private List<bool> selectedRecord = null;
         #endregion
 
         #region MenuItem的操作
@@ -314,40 +329,98 @@ namespace ZFramework.Editor
             else if (selectedOption == 1)
             {
                 EditorGUILayout.LabelField(string.Format("共有数据库 {0} 个：", dbPaths.Count), EditorStyles.boldLabel);
-                currSelectDb = GUILayout.Toolbar(currSelectDb, dbPaths.Select(d => d.filename).ToArray(), EditorStyles.toolbarButton);
-
-                
-                tablesInSelectedDb = GetAllDataTables(dbPaths[currSelectDb].fileAbsPath);
-                EditorGUILayout.Space();
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField(string.Format("{0} 中共有表 {1} 个：", dbPaths[currSelectDb].filename, tablesInSelectedDb.Count), EditorStyles.boldLabel);
-                currSelectTableIndex = GUILayout.Toolbar(currSelectTableIndex, tablesInSelectedDb.ToArray(), EditorStyles.toolbarButton);
-
-                currSelectTable = GetDataTabel(tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
-                EditorGUILayout.Space();
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField(string.Format("表 {0} 中共有记录 {1} 条：", tablesInSelectedDb[currSelectTableIndex], currSelectTable.Rows.Count), EditorStyles.boldLabel);
-
-                float uiScvHeight = currSelectTable.Rows.Count < 25 ? currSelectTable.Rows.Count * 20 : 500;
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("索引");
-                foreach (var column in currSelectTable.Columns)
+                if (dbPaths.Count > 0)
                 {
-                    GUILayout.Label(column.ToString());
-                }
-                EditorGUILayout.EndHorizontal();
-                uiScrollviewPos = EditorGUILayout.BeginScrollView(uiScrollviewPos, GUILayout.MaxHeight(uiScvHeight));
-                for (int i = 0; i < currSelectTable.Rows.Count; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label(i.ToString());
-                    foreach (var column in currSelectTable.Columns)
+                    currSelectDb = GUILayout.Toolbar(currSelectDb, dbPaths.Select(d => d.filename).ToArray(), EditorStyles.toolbarButton);
+
+                    if (currSelectDb != oriSelectDb)
                     {
-                        GUILayout.Label(column.ToString());
+                        tablesInSelectedDb = GetAllDataTables(dbPaths[currSelectDb].fileAbsPath);
+                        oriSelectDb = currSelectDb;
                     }
-                    EditorGUILayout.EndHorizontal();
+                    if (tablesInSelectedDb.Count > 0)
+                    {
+                        EditorGUILayout.Space();
+                        EditorGUILayout.Space();
+                        EditorGUILayout.LabelField(string.Format("{0} 中共有表 {1} 个：", dbPaths[currSelectDb].filename, tablesInSelectedDb.Count), EditorStyles.boldLabel);
+                        currSelectTableIndex = GUILayout.Toolbar(currSelectTableIndex, tablesInSelectedDb.ToArray(), EditorStyles.toolbarButton);
+                        if (currSelectTableIndex != oriSelectTableIndex)
+                        {
+                            currSelectTable = GetDataTabel(tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
+                            selectedRecord = new List<bool>();
+                            for (int i = 0; i < currSelectTable.Rows.Count; i++)
+                            {
+                                selectedRecord.Add(false);
+                            }
+                            oriSelectTableIndex = currSelectTableIndex;
+                        }
+                        EditorGUILayout.Space();
+                        EditorGUILayout.Space();
+                        EditorGUILayout.LabelField(string.Format("表 {0} 中共有记录 {1} 条：", tablesInSelectedDb[currSelectTableIndex], currSelectTable.Rows.Count), EditorStyles.boldLabel);
+
+                        float uiScvHeight = currSelectTable.Rows.Count < 25 ? currSelectTable.Rows.Count * 20 : 500;
+                        EditorGUILayout.BeginHorizontal();
+                        // 列的名字
+                        GUILayout.Label("选择", EditorStyles.boldLabel, GUILayout.MaxWidth(50));
+                        GUILayout.Label("索引", EditorStyles.boldLabel, GUILayout.MaxWidth(50));
+                        foreach (var column in currSelectTable.Columns)
+                        {
+                            GUILayout.Label(column.ToString(), EditorStyles.boldLabel, GUILayout.MaxWidth(150));
+                        }
+                        EditorGUILayout.EndHorizontal();
+                        // 表的详细内容
+                        uiScrollviewPos = EditorGUILayout.BeginScrollView(uiScrollviewPos, GUILayout.MaxHeight(uiScvHeight));
+                        for (int i = 0; i < currSelectTable.Rows.Count; i++)
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            selectedRecord[i] = GUILayout.Toggle(selectedRecord[i], "", GUILayout.MaxWidth(50));
+                            GUILayout.Label(i.ToString(), GUILayout.MaxWidth(50));
+                            for (int j = 0; j < currSelectTable.Columns.Count; j++)
+                            {
+                                GUILayout.Label(currSelectTable.Rows[i][j].ToString(), EditorStyles.label, GUILayout.MaxWidth(150));
+                            }
+                            EditorGUILayout.EndHorizontal();
+                        }
+                        EditorGUILayout.EndScrollView();
+                        EditorGUILayout.BeginHorizontal();
+                        if (currSelectTable.Rows.Count > 0)
+                        {
+                            if (GUILayout.Button("全部选中"))
+                            {
+                                for (int i = 0; i < selectedRecord.Count; i++)
+                                {
+                                    selectedRecord[i] = true;
+                                }
+                            }
+                            if (GUILayout.Button("全部不选中"))
+                            {
+                                for (int i = 0; i < selectedRecord.Count; i++)
+                                {
+                                    selectedRecord[i] = false;
+                                }
+                            }
+                            GUILayout.Space(20);
+                        }
+                        
+                        if (GUILayout.Button("增"))
+                        {
+
+                        }
+                        if (GUILayout.Button("删"))
+                        {
+
+                        }
+                        if (GUILayout.Button("改"))
+                        {
+
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    else
+                    {
+                        GUILayout.Label("所选库中没有任何表！");
+                    }
                 }
-                EditorGUILayout.EndScrollView();
             }
             else if (selectedOption == 2)
             {
