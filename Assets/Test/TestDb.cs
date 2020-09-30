@@ -75,6 +75,14 @@ public class TestDb : MonoBehaviour
 
         print(TestSingleton.Instance.ToString());
 
+        print("".GetType().IsValueType);
+        print(15.GetType().IsValueType);
+        print(15f.GetType().IsValueType);
+        print(false.GetType().IsValueType);
+        print(((long)64).GetType().IsValueType);
+
+
+
     }
 
     private void Update()
