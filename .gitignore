@@ -4,6 +4,7 @@ obj/
 Logs/
 Packages/
 ProjectSettings/
+Library/
 *.csproj
 *.meta
 *.sln
