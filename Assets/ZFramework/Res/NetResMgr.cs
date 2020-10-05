@@ -44,7 +44,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadAB(string url, Action<string, long, AssetBundle, object[]> callbackAb = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_ASSETBUNDLE_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_ASSETBUNDLE_PATH + url.GetFileNameFromUrlOrPath();
             if (Res.ResTmpSave.HasContentT<AssetBundle>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -69,7 +69,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_ASSETBUNDLE_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.Assetbundle;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_ASSETBUNDLE_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -107,7 +107,7 @@ namespace ZFramework.Res
                     {
                         if (bs != null)
                         {
-                            string path = LocalResPath.DIR_ASSETBUNDLE_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_ASSETBUNDLE_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentByteArray(bs);
                             AssetBundle ab = AssetBundle.LoadFromMemory(bs);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
@@ -131,7 +131,7 @@ namespace ZFramework.Res
                 {
                     if (cbs != null)
                     {
-                        string path = LocalResPath.DIR_ASSETBUNDLE_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_ASSETBUNDLE_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentByteArray(cbs);
                         AssetBundle ab = AssetBundle.LoadFromMemory(cbs);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
@@ -156,7 +156,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadTexture2D(string url, Action<string, long, Texture2D, object[]> callbackTexture2D = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_TEXTURE2D_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_TEXTURE2D_PATH + url.GetFileNameFromUrlOrPath(); 
             if (Res.ResTmpSave.HasContentT<Texture2D>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -181,7 +181,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_TEXTURE2D_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.Texture2D;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_TEXTURE2D_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -228,7 +228,7 @@ namespace ZFramework.Res
                             {
                                 bs = ct2d.EncodeToJPG();
                             }
-                            string path = LocalResPath.DIR_TEXTASSET_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_TEXTURE2D_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentByteArray(bs);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
                             DBMgr.DefaultDB.Update(record);
@@ -260,7 +260,7 @@ namespace ZFramework.Res
                         {
                             bs = ct2d.EncodeToJPG();
                         }
-                        string path = LocalResPath.DIR_TEXTASSET_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_TEXTURE2D_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentByteArray(bs);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
                         DBMgr.DefaultDB.Insert(nft);
@@ -284,7 +284,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadSprite(string url, Action<string, long, Sprite, object[]> callbackSprite = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_TEXTURE2D_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_TEXTURE2D_PATH + url.GetFileNameFromUrlOrPath();
             if (Res.ResTmpSave.HasContentT<Sprite>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -309,7 +309,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_TEXTURE2D_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.Texture2D;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_TEXTURE2D_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -356,7 +356,7 @@ namespace ZFramework.Res
                             {
                                 bs = sprite.texture.EncodeToJPG();
                             }
-                            string path = LocalResPath.DIR_TEXTURE2D_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_TEXTURE2D_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentByteArray(bs);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
                             DBMgr.DefaultDB.Update(record);
@@ -388,7 +388,7 @@ namespace ZFramework.Res
                         {
                             bs = sprite.texture.EncodeToJPG();
                         }
-                        string path = LocalResPath.DIR_TEXTURE2D_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_TEXTURE2D_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentByteArray(bs);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
                         DBMgr.DefaultDB.Insert(nft);
@@ -412,7 +412,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadTextAsset(string url, Action<string, long, TextAsset, object[]> callbackTextAsset = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_TEXTASSET_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_TEXTASSET_PATH + url.GetFileNameFromUrlOrPath();
             if (Res.ResTmpSave.HasContentT<TextAsset>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -437,7 +437,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_TEXTASSET_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.TextAsset;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_TEXTASSET_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -475,7 +475,7 @@ namespace ZFramework.Res
                     {
                         if (txtast != null)
                         {
-                            string path = LocalResPath.DIR_TEXTASSET_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_TEXTASSET_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentStr(txtast.text);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
                             DBMgr.DefaultDB.Update(record);
@@ -498,7 +498,7 @@ namespace ZFramework.Res
                 {
                     if (txtast != null)
                     {
-                        string path = LocalResPath.DIR_TEXTASSET_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_TEXTASSET_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentStr(txtast.text);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
                         DBMgr.DefaultDB.Insert(nft);
@@ -522,7 +522,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadAudioClip(string url, Action<string, long, AudioClip, object[]> callbackAudioClip = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_AUDIOCLIP_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_AUDIOCLIP_PATH + url.GetFileNameFromUrlOrPath();
             if (Res.ResTmpSave.HasContentT<AudioClip>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -547,7 +547,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_AUDIOCLIP_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.AudioClip;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_AUDIOCLIP_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -585,7 +585,7 @@ namespace ZFramework.Res
                     {
                         if (aclip != null)
                         {
-                            string path = LocalResPath.DIR_AUDIOCLIP_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_AUDIOCLIP_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentByteArray(cargs[cargs.Length - 1] as byte[]);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
                             DBMgr.DefaultDB.Update(record);
@@ -611,7 +611,7 @@ namespace ZFramework.Res
                 {
                     if (aclip != null)
                     {
-                        string path = LocalResPath.DIR_AUDIOCLIP_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_AUDIOCLIP_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentByteArray(cargs[cargs.Length - 1] as byte[]);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
                         DBMgr.DefaultDB.Insert(nft);
@@ -638,7 +638,7 @@ namespace ZFramework.Res
         /// <param name="args"></param>
         public static void DownloadVideoClip(string url, Action<string, long, ResTmpSave.NetVideoClip, object[]> callbackVideoClip = null, Action<float> progress = null, params object[] args)
         {
-            string filepath = LocalResPath.DIR_VIDEOCLIP_PATH + Path.GetFileName(url);
+            string filepath = LocalResPath.DIR_VIDEOCLIP_PATH + url.GetFileNameFromUrlOrPath();
             if (Res.ResTmpSave.HasContentT<ResTmpSave.NetVideoClip>(filepath))
             {
                 progress?.Invoke(1.0f);
@@ -663,7 +663,7 @@ namespace ZFramework.Res
             }
             Res.LocalResPath.DIR_VIDEOCLIP_PATH.CheckOrCreateDir();
             int localFileType = (int)NetFileTable.FileType.VideoClip;
-            string localFileName = Path.GetFileName(url);
+            string localFileName = url.GetFileNameFromUrlOrPath();
             string localFilePath = string.Format("{0}{1}", Res.LocalResPath.DIR_VIDEOCLIP_PATH, localFileName);
             Dictionary<string, List<object>> conditions = new Dictionary<string, List<object>>();
             conditions.Add("filetype", new List<object> { "filetype", typeof(int), localFileType });
@@ -693,7 +693,7 @@ namespace ZFramework.Res
                     {
                         if (cbs != null)
                         {
-                            string path = LocalResPath.DIR_VIDEOCLIP_PATH + Path.GetFileName(uurl);
+                            string path = LocalResPath.DIR_VIDEOCLIP_PATH + uurl.GetFileNameFromUrlOrPath();
                             path.WriteTextAssetContentByteArray(cbs);
                             record.state = (int)NetFileTable.FileDownloadState.Downloaded;
                             DBMgr.DefaultDB.Update(record);
@@ -719,7 +719,7 @@ namespace ZFramework.Res
                 {
                     if (cbs != null)
                     {
-                        string path = LocalResPath.DIR_VIDEOCLIP_PATH + Path.GetFileName(uurl);
+                        string path = LocalResPath.DIR_VIDEOCLIP_PATH + uurl.GetFileNameFromUrlOrPath();
                         path.WriteTextAssetContentByteArray(cbs);
                         NetFileTable nft = new NetFileTable(0, localFileType, localFileName, null, (int)NetFileTable.FileDownloadState.Downloaded);
                         DBMgr.DefaultDB.Insert(nft);

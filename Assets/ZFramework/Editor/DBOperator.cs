@@ -1,16 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using Newtonsoft.Json;
 using System.IO;
 using System;
 using System.Linq;
+using UnityEngine;
 using System.Data;
 using Mono.Data.Sqlite;
-using NUnit.Framework.Constraints;
-using ZFramework.Log;
-using UnityEditor.Graphs;
+
 namespace ZFramework.Editor
 {
     /// <summary>
@@ -19,6 +15,105 @@ namespace ZFramework.Editor
     public static class DBOperator
     {
         #region API
+
+        /// <summary>
+        /// 删除库中所有表的记录
+        /// </summary>
+        /// <param name="dbPaths"></param>
+        /// <returns></returns>
+        public static bool DeleteAllTableRecords(List<string> dbPaths)
+        {
+            bool res = false;
+            try
+            {
+                foreach (var path in dbPaths)
+                {
+                    List<string> tableNames = GetAllDataTableNames(path);
+                    foreach (var tableName in tableNames)
+                    {
+                        string cmdStr = string.Format("DELETE FROM {0};", tableName);
+                        ExecuteNonQuery(cmdStr, path);
+                    }
+                }
+                res = true;
+            }
+            catch(SqliteException e)
+            {
+                Debug.LogError("删除数据库中的所有表记录异常，异常原因：" + e.Message);
+                res = false;
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 删除所有库中所有的表
+        /// </summary>
+        /// <param name="dbPaths"></param>
+        /// <returns></returns>
+        public static bool DropAllTables(List<string> dbPaths)
+        {
+            bool res = false;
+            try
+            {
+                foreach (var path in dbPaths)
+                {
+                    List<string> tableNames = GetAllDataTableNames(path);
+                    foreach (var tableName in tableNames)
+                    {
+                        string cmdStr = string.Format("DROP TABLE {0};", tableName);
+                        ExecuteNonQuery(cmdStr, path);
+                    }
+                }
+                res = true;
+            }
+            catch(Exception e)
+            {
+                res = false;
+                Debug.LogError("删除所有库中所有的表异常，原因：" + e.Message);
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 更新表记录
+        /// </summary>
+        /// <param name="newFields"></param>
+        /// <param name="oriFields"></param>
+        /// <param name="dcc"></param>
+        /// <param name="tableName"></param>
+        /// <param name="connectStr"></param>
+        /// <returns></returns>
+        public static int UpdateReord(List<object> newFields, List<object> oriFields, DataColumnCollection dcc, string tableName, string connectStr)
+        {
+            int autoKeyIndex = -1;
+            if (HasAutoincrementKey(tableName, connectStr))
+            {
+                for (int i = 0; i < dcc.Count; i++)
+                {
+                    if (dcc[i].ToString().ToLower().Contains("id"))
+                    {
+                        autoKeyIndex = i;
+                        break;
+                    }
+                }
+            }
+            List<string> newFieldValue = new List<string>();
+            for (int i = 0; i < dcc.Count; i++)
+            {
+                if (autoKeyIndex != i)
+                {
+                    newFieldValue.Add(GetFieldTypeContentForSQlite(dcc[i].ColumnName, newFields[i], dcc[i].DataType));
+                }
+            }
+            List<string> oriFieldValue = new List<string>();
+            for (int i = 0; i < dcc.Count; i++)
+            {
+                oriFieldValue.Add(GetFieldTypeContentForSQlite(dcc[i].ToString(), oriFields[i], dcc[i].DataType));
+            }
+            string cmdStr = string.Format("update {0} set {1} where {2};", tableName, string.Join(",", newFieldValue), string.Join(" and ", oriFieldValue));
+            return ExecuteNonQuery(cmdStr, connectStr);
+        }
+
         /// <summary>
         /// 添加表记录
         /// </summary>
@@ -29,7 +124,6 @@ namespace ZFramework.Editor
         /// <returns></returns>
         public static int InsertRecord(List<object> fields, DataColumnCollection dcc, string tableName, string connectStr)
         {
-            string cmdStr = string.Format("Insert into {0} ", tableName);
             List<string> cmdName = new List<string>();
             List<string> cmdValue = new List<string>();
             int autoKeyIndex = -1;
@@ -52,8 +146,7 @@ namespace ZFramework.Editor
                     cmdValue.Add(GetFieldTypeValueForSQlite(fields[i], dcc[i].DataType));
                 }
             }
-            cmdStr += string.Format("({0}) values ({1});", string.Join(",", cmdName), string.Join(",", cmdValue));
-            Debug.Log(cmdStr);
+            string cmdStr = string.Format("Insert into {0}({1}) values ({2});", tableName, string.Join(",", cmdName), string.Join(",", cmdValue));
             return ExecuteNonQuery(cmdStr, connectStr);
         }
 
@@ -93,7 +186,7 @@ namespace ZFramework.Editor
         /// <returns></returns>
         public static bool HasAutoincrementKey(string tableName, string connectStr)
         {
-            string cmdStr = string.Format("SELECT name FROM sqlite_master WHERE type='table' and name == '{0}' ORDER BY name;", tableName);
+            string cmdStr = string.Format("SELECT sql FROM sqlite_master WHERE type='table' and name == '{0}' ORDER BY name;", tableName);
             DataTable dt = ExecuteQuery(cmdStr, connectStr);
             if(dt!=null && dt.Rows.Count > 0)
             {
@@ -109,7 +202,7 @@ namespace ZFramework.Editor
         /// </summary>
         /// <param name="connectStr"></param>
         /// <returns></returns>
-        public static List<string> GetAllDataTables(string connectStr)
+        public static List<string> GetAllDataTableNames(string connectStr)
         {
             string cmdStr = "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name;";
             DataTable dt = ExecuteQuery(cmdStr, connectStr);
@@ -134,6 +227,26 @@ namespace ZFramework.Editor
         {
             string cmdStr = string.Format("SELECT * FROM {0};", tableName);
             return ExecuteQuery(cmdStr, connectStr);
+        }
+
+        /// <summary>
+        /// 执行自查询命令
+        /// </summary>
+        /// <param name="cmdStr"></param>
+        /// <param name="connectStr"></param>
+        /// <returns></returns>
+        public static DataTable GetDataTabelAuto(string cmdStr, string connectStr)
+        {
+            DataTable dt = null;
+            try
+            {
+                dt = ExecuteQuery(cmdStr, connectStr); 
+            }
+            catch(SqliteException e)
+            {
+                Debug.LogError("自查询命令异常，原因：" + e.Message);
+            }
+            return dt;
         }
 
 
@@ -220,6 +333,7 @@ namespace ZFramework.Editor
                 using (SqliteCommand cmd = new SqliteCommand(cmdStr, connection))
                 {
                     res = cmd.ExecuteNonQuery();
+
                 }
                 connection.Close();
             }

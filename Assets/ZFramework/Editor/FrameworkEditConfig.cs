@@ -131,6 +131,45 @@ namespace ZFramework.Editor
         /// 更新记录时用的数据存储
         /// </summary>
         private List<object> updateValueList = new List<object>();
+
+        /// <summary>
+        /// 更新记录时用的数据记录索引 存储
+        /// </summary>
+        private int updateSelectIndex = -1;
+
+        /// <summary>
+        /// 是否启用自查询命令
+        /// </summary>
+        private bool usingAutoCmd = false;
+
+        /// <summary>
+        /// 自查询命令字符串
+        /// </summary>
+        private string autoCmdStr = string.Empty;
+
+        /// <summary>
+        /// 自查询命令表结果存储
+        /// </summary>
+        private DataTable autoCmdDt = null;
+
+        /// <summary>
+        /// 自查询命令表的各列宽度
+        /// </summary>
+        private List<float> autoDtClmnWidth = new List<float>();
+
+        /// <summary>
+        /// 自查询命令表下拉位置
+        /// </summary>
+        private Vector2 autoSCVPosition = Vector2.zero;
+        #endregion
+
+        #region Data AssetBundle操纵
+        /// <summary>
+        /// 功能点提示
+        /// </summary>
+        private const string titleInfo = "注意点：\r\n" +
+                "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！";
+
         #endregion
 
         #region MenuItem的操作
@@ -143,7 +182,7 @@ namespace ZFramework.Editor
         [MenuItem(OPTION_NAME + "/打开操作面板")]
         public static void Init()
         {
-            FrameworkEditConfig window = EditorWindow.GetWindow<FrameworkEditConfig>(false, "ZFramework框架配置", true);
+            FrameworkEditConfig window = EditorWindow.GetWindow<FrameworkEditConfig>(false, "ZFramework框架配置", false);
             window.Show();
         }
         #endregion
@@ -215,7 +254,7 @@ namespace ZFramework.Editor
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
                         string.Format("{0}/{1}", Application.dataPath, config.UIPrePath).CheckForDeleteDir();
-                        File.Delete(string.Format("{0}/{1}.meta", Application.dataPath, config.UIPrePath));
+                        string.Format("{0}/{1}.meta", Application.dataPath, config.UIPrePath).CheckForDeleteFile();
                         AssetDatabase.Refresh();
                     }
                 }
@@ -233,7 +272,7 @@ namespace ZFramework.Editor
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
                         string.Format("{0}/{1}", Application.dataPath, config.UIScriptPath).CheckForDeleteDir();
-                        File.Delete(string.Format("{0}/{1}.meta", Application.dataPath, config.UIScriptPath));
+                        string.Format("{0}/{1}.meta", Application.dataPath, config.UIScriptPath).CheckForDeleteFile();
                         AssetDatabase.Refresh();
                     }
                 }
@@ -251,7 +290,7 @@ namespace ZFramework.Editor
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
                         string.Format("{0}/{1}", Application.dataPath, config.AssetbundlePath).CheckForDeleteDir();
-                        File.Delete(string.Format("{0}/{1}.meta", Application.dataPath, config.AssetbundlePath));
+                        string.Format("{0}/{1}.meta", Application.dataPath, config.AssetbundlePath).CheckForDeleteFile();
                         AssetDatabase.Refresh();
                     }
                 }
@@ -365,16 +404,111 @@ namespace ZFramework.Editor
             else if (selectedOption == 1)
             {
                 EditorGUILayout.HelpBox("注意点：\r\n库中所有表的空字段不能为 NULL，必须是一个 string.empty 的内容或者数字为 0 的内容，切记切记！！", MessageType.Info, true);
+
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                EditorGUILayout.BeginHorizontal();
+                if(GUILayout.Button("打开数据库所在文件夹", EditorStyles.miniButtonLeft))
+                {
+                    if (Directory.Exists(Application.persistentDataPath))
+                    {
+                        string path = Application.persistentDataPath + "/Unity";
+                        if (!Directory.Exists(path))
+                        {
+                            path = Application.persistentDataPath;
+                        }
+                        EditorUtility.RevealInFinder(path);
+                    }
+                }
+                if (GUILayout.Button("删除所有数据库", EditorStyles.miniButtonMid))
+                {
+                    try
+                    {
+                        string[] files = Directory.GetFiles(Application.persistentDataPath, "*.db", SearchOption.TopDirectoryOnly);
+                        if (files.Length > 0)
+                        {
+                            for (int i = 0; i < files.Length; i++)
+                            {
+                                File.Delete(files[i]);
+                            }
+                            dbPaths.Clear();
+                            oriSelectDb = -1;
+                            EditorUtility.DisplayDialog("删除数据库", "成功", "确定");
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        EditorUtility.DisplayDialog("删除数据库异常", "原因："+e.Message, "确定");
+                    }
+                }
+                if (GUILayout.Button("删除所有数据库中的表", EditorStyles.miniButtonMid))
+                {
+                    List<string> dbPaths = Directory.GetFiles(Application.persistentDataPath, "*.db", SearchOption.TopDirectoryOnly).ToList();
+                    if (dbPaths.Count > 0)
+                    {
+                        bool res = DBOperator.DropAllTables(dbPaths);
+                        EditorUtility.DisplayDialog("删除所有数据库中的表", res ? "成功" : "失败", "确定");
+                        if (res)
+                        {
+                            oriSelectDb = -1;
+                        }
+                    }
+                }
+                if (GUILayout.Button("删除所有数据库中的表记录", EditorStyles.miniButtonRight))
+                {
+                    List<string> dbPaths = Directory.GetFiles(Application.persistentDataPath, "*.db", SearchOption.TopDirectoryOnly).ToList();
+                    if (dbPaths.Count > 0)
+                    {
+                        bool res = DBOperator.DeleteAllTableRecords(dbPaths);
+                        EditorUtility.DisplayDialog("删除所有数据库中的表记录", res ? "成功" : "失败", "确定");
+                        if (res)
+                        {
+                            oriSelectDb = -1;
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
                 EditorGUILayout.LabelField(string.Format("共有数据库 {0} 个：", dbPaths.Count), EditorStyles.boldLabel);
                 if (dbPaths.Count > 0)
                 {
                     currSelectDb = GUILayout.Toolbar(currSelectDb, dbPaths.Select(d => d.filename).ToArray(), EditorStyles.toolbarButton);
 
+                    EditorGUILayout.BeginHorizontal();
+
+                    if (GUILayout.Button("删除此库中所有的表"))
+                    {
+                        if(EditorUtility.DisplayDialog("敏感操作提醒", "确认删除此库中所有的表？", "确认", "取消"))
+                        {
+                            bool res = DBOperator.DropAllTables(new List<string>() { dbPaths[currSelectDb].fileAbsPath });
+                            EditorUtility.DisplayDialog("删除所有数据库中的表", res ? "成功" : "失败", "确定");
+                            if (res)
+                            {
+                                oriSelectDb = -1;
+                            }                            
+                        }
+                    }
+                    if (GUILayout.Button("删除此库中所有的表记录"))
+                    {
+                        if (EditorUtility.DisplayDialog("敏感操作提醒", "确认删除此库中所有的表记录？", "确认", "取消"))
+                        {
+                            bool res = DBOperator.DeleteAllTableRecords(new List<string>() { dbPaths[currSelectDb].fileAbsPath });
+                            EditorUtility.DisplayDialog("删除所有数据库中的表记录", res ? "成功" : "失败", "确定");
+                            if (res)
+                            {
+                                oriSelectDb = -1;
+                            }
+                        }
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+
                     if (currSelectDb != oriSelectDb)
                     {
                         oriSelectDb = currSelectDb;
                         oriSelectTableIndex = -1;
-                        tablesInSelectedDb = DBOperator.GetAllDataTables(dbPaths[currSelectDb].fileAbsPath);
+                        tablesInSelectedDb = DBOperator.GetAllDataTableNames(dbPaths[currSelectDb].fileAbsPath);
                     }
                     if (tablesInSelectedDb.Count > 0)
                     {
@@ -428,7 +562,7 @@ namespace ZFramework.Editor
                         EditorGUILayout.Space();
                         EditorGUILayout.LabelField(string.Format("表 {0} 中共有记录 {1} 条：", tablesInSelectedDb[currSelectTableIndex], currSelectTable.Rows.Count), EditorStyles.boldLabel);
 
-                        float uiScvHeight = currSelectTable.Rows.Count < 25 ? currSelectTable.Rows.Count * 20 : 500;
+                        float uiScvHeight = currSelectTable.Rows.Count < 25 ? currSelectTable.Rows.Count * 20 : 300;
                         EditorGUILayout.BeginHorizontal();
                         // 列的名字
                         GUILayout.Label("选择", EditorStyles.boldLabel, GUILayout.MaxWidth(numberColumnWidth));
@@ -498,6 +632,21 @@ namespace ZFramework.Editor
                         if (GUILayout.Button("改", EditorStyles.miniButtonRight))
                         {
                             stateUpdateRecord = true;
+                            for (int i = 0; i < selectedRecord.Count; i++)
+                            {
+                                if (selectedRecord[i])
+                                {
+                                    updateSelectIndex = i;
+                                    break;
+                                }
+                            }
+                            if (updateSelectIndex >= 0)
+                            {
+                                for (int i = 0; i < currSelectTable.Columns.Count; i++)
+                                {
+                                    updateValueList[i] = currSelectTable.Rows[updateSelectIndex][i];
+                                }
+                            }
                         }
                         EditorGUILayout.EndHorizontal();
                         // 添加记录
@@ -541,7 +690,14 @@ namespace ZFramework.Editor
                             EditorGUILayout.BeginHorizontal();
                             if (GUILayout.Button("添加", GUILayout.MaxWidth(numberColumnWidth)))
                             {
-                                
+                                int res = DBOperator.InsertRecord(addValueList, currSelectTable.Columns, tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
+
+                                EditorUtility.DisplayDialog("添加结果：", res > 0 ? "添加成功" : "添加失败", "确定");
+                                if(res > 0)
+                                {
+                                    stateAddRecord = false;
+                                    oriSelectTableIndex = -1;
+                                }
                             }
                             if (GUILayout.Button("取消", GUILayout.MaxWidth(numberColumnWidth)))
                             {
@@ -550,21 +706,112 @@ namespace ZFramework.Editor
                             EditorGUILayout.EndHorizontal();
                         }
                         // 更新记录
-                        if (stateUpdateRecord)
+                        if (stateUpdateRecord && updateSelectIndex >= 0)
                         {
                             EditorGUILayout.Space();
                             EditorGUILayout.Space();
-                            EditorGUILayout.LabelField("更新表记录：");
+                            EditorGUILayout.LabelField("更新表记录时最好不要进行添加和删除的操作，如有错误，请重新打开面板：");
+                            for (int i = 0; i < currSelectTable.Columns.Count; i++)
+                            {
+                                if (currSelectTable.Columns[i].DataType == typeof(int))
+                                {
+                                    updateValueList[i] = EditorGUILayout.IntField(currSelectTable.Columns[i].ToString(), (int)updateValueList[i]);
+                                }
+                                else if (currSelectTable.Columns[i].DataType == typeof(float))
+                                {
+                                    updateValueList[i] = EditorGUILayout.FloatField(currSelectTable.Columns[i].ToString(), (float)updateValueList[i]);
+                                }
+                                else if (currSelectTable.Columns[i].DataType == typeof(double))
+                                {
+                                    updateValueList[i] = EditorGUILayout.DoubleField(currSelectTable.Columns[i].ToString(), (double)updateValueList[i]);
+                                }
+                                else if (currSelectTable.Columns[i].DataType == typeof(long))
+                                {
+                                    updateValueList[i] = EditorGUILayout.LongField(currSelectTable.Columns[i].ToString(), (long)updateValueList[i]);
+                                }
+                                else if (currSelectTable.Columns[i].DataType == typeof(string))
+                                {
+                                    updateValueList[i] = EditorGUILayout.TextField(currSelectTable.Columns[i].ToString(), updateValueList[i].ToString());
+                                }
+                                else if (currSelectTable.Columns[i].DataType == typeof(bool))
+                                {
+                                    updateValueList[i] = EditorGUILayout.Toggle(currSelectTable.Columns[i].ToString(), (bool)updateValueList[i]);
+                                }
+                                else
+                                {
+                                    updateValueList[i] = EditorGUILayout.TextField(currSelectTable.Columns[i].ToString(), updateValueList[i].ToString());
+                                }
+                            }
                             EditorGUILayout.BeginHorizontal();
                             if (GUILayout.Button("更新", GUILayout.MaxWidth(numberColumnWidth)))
                             {
+                                int res = DBOperator.UpdateReord(updateValueList, currSelectTable.Rows[updateSelectIndex].ItemArray.ToList(), currSelectTable.Columns, tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
+                                
+                                if (res > 0)
+                                {
+                                    stateUpdateRecord = false;
+                                    oriSelectTableIndex = -1;
+                                }
+                                EditorUtility.DisplayDialog("更新结果：", res > 0 ? "更新成功" : "更新失败", "确定");
 
                             }
                             if (GUILayout.Button("取消", GUILayout.MaxWidth(numberColumnWidth)))
                             {
                                 stateUpdateRecord = false;
+                                updateSelectIndex = -1;
                             }
                             EditorGUILayout.EndHorizontal();
+                        }
+
+                        EditorGUILayout.Space();
+                        EditorGUILayout.Space();
+                        usingAutoCmd = EditorGUILayout.Foldout(usingAutoCmd, "自查询命令");
+                        if (usingAutoCmd)
+                        {
+                            autoCmdStr = EditorGUILayout.TextArea(autoCmdStr,GUILayout.MaxHeight(50f));
+                            if (GUILayout.Button("执行命令") && !string.IsNullOrEmpty(autoCmdStr))
+                            {
+                                autoCmdDt = DBOperator.GetDataTabelAuto(autoCmdStr, dbPaths[currSelectDb].fileAbsPath);
+                                if (autoCmdDt != null)
+                                {
+                                    for (int i = 0; i < autoCmdDt.Columns.Count; i++)
+                                    {
+                                        if (autoCmdDt.Columns[i].DataType == typeof(int)
+                                        || autoCmdDt.Columns[i].DataType == typeof(float)
+                                         || autoCmdDt.Columns[i].DataType == typeof(double)
+                                          || autoCmdDt.Columns[i].DataType == typeof(decimal)
+                                           || autoCmdDt.Columns[i].DataType == typeof(long))
+                                        {
+                                            autoDtClmnWidth.Add(numberColumnWidth);
+                                        }
+                                        else
+                                        {
+                                            autoDtClmnWidth.Add(textColumnWidth);
+                                        }
+                                    }
+                                }
+                            }
+                            if (autoCmdDt != null && autoCmdDt.Rows.Count > 0 && autoCmdDt.Columns.Count > 0)
+                            {
+                                EditorGUILayout.BeginHorizontal();
+                                for (int i = 0; i < autoCmdDt.Columns.Count; i++)
+                                {
+                                    GUILayout.Label(autoCmdDt.Columns[i].ColumnName, GUILayout.MaxWidth(autoDtClmnWidth[i]));
+                                }
+                                EditorGUILayout.EndHorizontal();
+
+                                autoSCVPosition = EditorGUILayout.BeginScrollView(autoSCVPosition, GUILayout.MaxHeight(200f));
+                                for (int i = 0; i < autoCmdDt.Rows.Count; i++)
+                                {
+                                    EditorGUILayout.BeginHorizontal();
+                                    for (int j = 0; j < autoCmdDt.Columns.Count; j++)
+                                    {
+                                        GUILayout.Label(autoCmdDt.Rows[i][j] == null ? "" : autoCmdDt.Rows[i][j].ToString(), GUILayout.MaxWidth(autoDtClmnWidth[j]));
+                                    }
+                                    EditorGUILayout.EndHorizontal();
+                                }
+                                EditorGUILayout.EndScrollView();
+                            }
                         }
                     }
                     else
@@ -573,9 +820,10 @@ namespace ZFramework.Editor
                     }
                 }
             }
+            // AB报操作
             else if (selectedOption == 2)
             {
-                GUILayout.Label("在Project面板中选择的物体：", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox(titleInfo, MessageType.Info, true);
             }
             // 测试
             else if (selectedOption == 3)

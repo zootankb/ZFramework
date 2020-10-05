@@ -96,7 +96,7 @@ public class TestDb : MonoBehaviour
     [Obsolete]
     void Test()
     {
-        NetResMgr.DownloadTexture2D("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, t2d, objs) =>
+        NetResMgr.DownloadTexture2D("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2636238737,1519537265&fm=26&gp=0.jpg", (url, code, t2d, objs) =>
         {
             print(url);
             print(code);
@@ -105,7 +105,7 @@ public class TestDb : MonoBehaviour
 
         }, (progress) => { print(progress); }, new object[] { "测试下载" });
 
-        NetResMgr.DownloadSprite("http://127.0.0.1:8000/static/AppOne/123.jpg", (url, code, sprite, objs) =>
+        NetResMgr.DownloadSprite("https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2636238737,1519537265&fm=26&gp=0.jpg", (url, code, sprite, objs) =>
         {
             print(url);
             print(code);
