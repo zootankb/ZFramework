@@ -29,7 +29,7 @@ namespace ZFramework.Editor
         /// <summary>
         /// 操作页
         /// </summary>
-        private string[] optionPanel = new string[] { "框架配置", "数据库操作", "AB包管理", "测试" };
+        private string[] optionPanel = new string[] { "框架配置", "数据库操作", "AB包管理", "UI" };
 
         /// <summary>
         /// 当前选择的操作页
@@ -163,8 +163,9 @@ namespace ZFramework.Editor
         /// <summary>
         /// 功能点提示
         /// </summary>
-        private const string titleInfo = "注意点：\r\n" +
-                "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！";
+        private const string titleInfo = "注意点：\r\n\r\n" +
+                "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！\r\n\r\n" +
+                "能以同一套打包方式同时打包资源ab包和场景包，代码自动区别和过滤！";
 
         /// <summary>
         /// 存储选取的物体的信息key值，由EditorPrefs使用
@@ -225,6 +226,11 @@ namespace ZFramework.Editor
         /// 指定平台下面对应的文件夹中ab包文件的信息
         /// </summary>
         private List<SelectAssetInfo> abInfos = new List<SelectAssetInfo>();
+
+        /// <summary>
+        /// ab包常量的脚本名字
+        /// </summary>
+        private string assetPropertyScriptName = "AssetConfig";
         #endregion
 
         #region MenuItem的操作
@@ -928,7 +934,7 @@ namespace ZFramework.Editor
                         GUILayout.Label(string.Join(",", selectAssetDic[key].assetNames), EditorStyles.label);
                         if (GUILayout.Button("定位", GUILayout.MaxWidth(50)))
                         {
-                            // TODO
+                            Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(selectAssetDic[key].assetNames.First());
                         }
                         if (GUILayout.Button("移除", GUILayout.MaxWidth(50)))
                         {
@@ -993,7 +999,25 @@ namespace ZFramework.Editor
                     }
                     if (GUILayout.Button("直接标签打包"))
                     {
-                        // TODO
+                        string dir = string.Format("{0}/{1}/{2}", Application.dataPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                        dir.CheckOrCreateDir();
+                        string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
+                        BuildAssetBundleOptions option = (BuildAssetBundleOptions)Enum.Parse(typeof(BuildAssetBundleOptions), optionName);
+                        BuildTarget target = BuildTarget.StandaloneWindows64;
+                        switch (selectBuildPlatformIndex)
+                        {
+                            case 0:
+                                target = BuildTarget.StandaloneWindows64;
+                                break;
+                            case 1:
+                                target = BuildTarget.Android;
+                                break;
+                            case 2:
+                                target = BuildTarget.iOS;
+                                break;
+                        }
+                        ABOperator.BuildAssetbundleWithTag(dir, option, target);
+                        RefreshAbInfos(dir);
                     }
                     GUILayout.Space(50);
                     EditorGUILayout.EndHorizontal();
@@ -1034,11 +1058,11 @@ namespace ZFramework.Editor
                         }
                         if (GUILayout.Button("定位", GUILayout.MaxWidth(50)))
                         {
-                            // TODO
+                            Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(abInfos[i].assetNames[1]);
                         }
                         if (GUILayout.Button("删除", GUILayout.MaxWidth(50)))
                         {
-                            // TODO
+                            DeleteAssetInfo(new List<SelectAssetInfo>() { abInfos[i] });
                         }
                         EditorGUILayout.EndHorizontal();
                     }
@@ -1057,17 +1081,30 @@ namespace ZFramework.Editor
                         SetAbInfoState(false);
                     }
                     GUILayout.Space(3);
-                    if (GUILayout.Button("删除所选", EditorStyles.miniButtonRight))
+                    if (GUILayout.Button("删除所选", EditorStyles.miniButtonMid))
                     {
                         List<SelectAssetInfo> slct = abInfos.Where(p => p.selected).ToList();
-                        if (slct.Count > 0)
+                        DeleteAssetInfo(slct);
+                    }
+                    GUILayout.Space(3);
+                    if (GUILayout.Button("打开资源浏览器", EditorStyles.miniButtonMid))
+                    {
+                        string path = string.Format("{0}/{1}/{2}", Application.dataPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                        if (Directory.Exists(path))
                         {
-                            for (int i = 0; i < slct.Count; i++)
-                            {
-                                DeleteAbOrMetaFile(slct[i].assetNames[0]);
-                            }
-                            AssetDatabase.Refresh();
+                            EditorUtility.RevealInFinder(path);
                         }
+                        else
+                        {
+                            ShowNotification(new GUIContent("目标文件夹 " + assetPlatforms[currSelectAbPlatformIndex] + " 不存在！"));
+                        }
+                    }
+                    GUILayout.Space(3);
+                    if (GUILayout.Button("生成常量配置文件", EditorStyles.miniButtonRight))
+                    {
+                        string savePath = string.Format("{0}/{1}/{2}.cs",Application.dataPath, config.UIScriptPath, assetPropertyScriptName);
+                        config.UIScriptPath.CheckOrCreateDir();
+                        CreateMonoScript.CreateAssetNameScript(abInfos.Select(p=>p.assetbundleName).ToList(), assetPropertyScriptName, config.FrameworkNamespace, savePath);
                     }
                     GUILayout.Space(50);
                     EditorGUILayout.EndHorizontal();
@@ -1105,6 +1142,23 @@ namespace ZFramework.Editor
         #region 私有函数
 
         /// <summary>
+        /// 删除ab包
+        /// </summary>
+        /// <param name="ainfos"></param>
+        private void DeleteAssetInfo(List<SelectAssetInfo> ainfos)
+        {
+            if (ainfos != null && ainfos.Count > 0)
+            {
+                for (int i = 0; i < ainfos.Count; i++)
+                {
+                    DeleteAbOrMetaFile(ainfos[i].assetNames.First());
+                    abInfos.Remove(ainfos[i]);
+                }
+                AssetDatabase.Refresh();
+            }
+        }
+
+        /// <summary>
         /// 删除ab包以及附属的manifest、meta等文件
         /// </summary>
         /// <param name="path"></param>
@@ -1137,10 +1191,18 @@ namespace ZFramework.Editor
             abInfos.Clear();
             if (Directory.Exists(dir))
             {
-                string[] finfos = Directory.GetFiles(dir, "*.ab");
+                string[] finfos = Directory.GetFiles(dir);
                 foreach (var info in finfos)
                 {
-                    abInfos.Add(new SelectAssetInfo() { selected = false, assetbundleName = Path.GetFileName(info), assetNames = new List<string>() { info } });
+                    if (info.ToLower().EndsWith(".ab") || info.ToLower().EndsWith(".unity3d"))
+                    {
+                        abInfos.Add(new SelectAssetInfo()
+                        {
+                            selected = false,
+                            assetbundleName = Path.GetFileName(info),
+                            assetNames = new List<string>() { info, info.Replace(Application.dataPath, "Assets") }
+                        });
+                    }
                 }
             }
         }

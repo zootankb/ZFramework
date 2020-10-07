@@ -1,7 +1,40 @@
 ManifestFileVersion: 0
-CRC: 721817015
+CRC: 1997010724
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
+      Name: sphere.ab
+      Dependencies: {}
+    Info_1:
       Name: cube.ab
+      Dependencies: {}
+    Info_2:
+      Name: cube (3).ab
+      Dependencies: {}
+    Info_3:
+      Name: cube (2).ab
+      Dependencies: {}
+    Info_4:
+      Name: cube (4).ab
+      Dependencies: {}
+    Info_5:
+      Name: cube (1).ab
+      Dependencies: {}
+    Info_6:
+      Name: cube (5).ab
+      Dependencies: {}
+    Info_7:
+      Name: cube (6).ab
+      Dependencies: {}
+    Info_8:
+      Name: cube (7).ab
+      Dependencies: {}
+    Info_9:
+      Name: cube (8).ab
+      Dependencies: {}
+    Info_10:
+      Name: cube (9).ab
+      Dependencies: {}
+    Info_11:
+      Name: cube (10).ab
       Dependencies: {}
