@@ -213,7 +213,7 @@ namespace ZFramework.Editor
         {
             if (File.Exists(path))
             {
-                File.Create(path);
+                File.Delete(path);
             }
         }
     }

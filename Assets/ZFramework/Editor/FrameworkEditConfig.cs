@@ -7,10 +7,6 @@ using System.IO;
 using System;
 using System.Linq;
 using System.Data;
-using Mono.Data.Sqlite;
-using NUnit.Framework.Constraints;
-using ZFramework.Log;
-using UnityEditor.Graphs;
 
 namespace ZFramework.Editor
 {
@@ -170,6 +166,65 @@ namespace ZFramework.Editor
         private const string titleInfo = "注意点：\r\n" +
                 "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！";
 
+        /// <summary>
+        /// 存储选取的物体的信息key值，由EditorPrefs使用
+        /// </summary>
+        private const string EDITOR_AB_INFO_KEY = "EDITOR_AB_INFO_KEY";
+
+        /// <summary>
+        /// 存储ab包资源信息的存储，key为selection[i].name
+        /// </summary>
+        private static Dictionary<string, SelectAssetInfo> selectAssetDic = new Dictionary<string, SelectAssetInfo>();
+
+        /// <summary>
+        /// ab包滑动框的位置
+        /// </summary>
+        private Vector2 abAssetScvPos = Vector2.zero;
+
+        /// <summary>
+        /// 打包所选择的平台
+        /// </summary>
+        private string[] assetPlatforms = new string[] { "PC", "Android", "IOS" };
+
+        /// <summary>
+        /// 打包的方式，一对一打包还是多对一打包
+        /// </summary>
+        private string[] assetBuildType = new string[] { "一对一打包", "多对一打包" };
+
+        /// <summary>
+        /// 选择的打包方式
+        /// </summary>
+        private int selectBuildType = 0;
+
+        /// <summary>
+        /// 选择的平台索引
+        /// </summary>
+        private int selectBuildPlatformIndex = 0;
+
+        /// <summary>
+        /// 选择的打ab时的压缩方式
+        /// </summary>
+        private int selectBuildAbOption = (int)BuildAssetBundleOptions.None;
+
+        /// <summary>
+        /// 选择的已经打包好的平台索引(上次)
+        /// </summary>
+        private int oriSelectAbPlatformIndex = -1;
+
+        /// <summary>
+        /// 选择的已经打包好的平台索引(当前)
+        /// </summary>
+        private int currSelectAbPlatformIndex = 0;
+
+        /// <summary>
+        /// 选择ab包滑动框的位置
+        /// </summary>
+        private Vector2 selectAbPos = Vector2.zero;
+
+        /// <summary>
+        /// 指定平台下面对应的文件夹中ab包文件的信息
+        /// </summary>
+        private List<SelectAssetInfo> abInfos = new List<SelectAssetInfo>();
         #endregion
 
         #region MenuItem的操作
@@ -184,6 +239,26 @@ namespace ZFramework.Editor
         {
             FrameworkEditConfig window = EditorWindow.GetWindow<FrameworkEditConfig>(false, "ZFramework框架配置", false);
             window.Show();
+        }
+
+        [MenuItem("Assets/标记AB包物体")]
+        public static void GetSelectedChangedInProject()
+        {
+            UnityEngine.Object[] selection = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets);
+            for (int i = 0; i < selection.Length; i++)
+            {
+                var sl = selection[i];
+                string key = sl.name;
+                if (selectAssetDic.ContainsKey(key))
+                {
+                    // TODO
+                }
+                else
+                {
+                    selectAssetDic.Add(key, new SelectAssetInfo() { selected = false, assetbundleName = key, assetNames = new List<string>() { AssetDatabase.GetAssetPath(sl) } });
+                }
+            }
+            SaveAssetInfo();
         }
         #endregion
 
@@ -225,6 +300,11 @@ namespace ZFramework.Editor
                 dbPaths.Add(new AssetFileInfo() { filename = Path.GetFileName(dbfile), fileAbsPath = dbfile, selected = false, fileRelaPath = dbfile.Replace(Application.persistentDataPath, "") });
             }
             #endregion
+
+            #region 初始化 ab包操作
+            string con = EditorPrefs.GetString(EDITOR_AB_INFO_KEY, "{}");
+            selectAssetDic = con.ToNewtonObjectT<Dictionary<string, SelectAssetInfo>>();
+            #endregion
         }
 
         /// <summary>
@@ -253,8 +333,7 @@ namespace ZFramework.Editor
                 {
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
-                        string.Format("{0}/{1}", Application.dataPath, config.UIPrePath).CheckForDeleteDir();
-                        string.Format("{0}/{1}.meta", Application.dataPath, config.UIPrePath).CheckForDeleteFile();
+                        DeleteAbOrMetaFile(string.Format("{0}/{1}", Application.dataPath, config.UIPrePath));
                         AssetDatabase.Refresh();
                     }
                 }
@@ -271,8 +350,7 @@ namespace ZFramework.Editor
                 {
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
-                        string.Format("{0}/{1}", Application.dataPath, config.UIScriptPath).CheckForDeleteDir();
-                        string.Format("{0}/{1}.meta", Application.dataPath, config.UIScriptPath).CheckForDeleteFile();
+                        DeleteAbOrMetaFile(string.Format("{0}/{1}", Application.dataPath, config.UIScriptPath));
                         AssetDatabase.Refresh();
                     }
                 }
@@ -289,8 +367,7 @@ namespace ZFramework.Editor
                 {
                     if (EditorUtility.DisplayDialog("警告", "此操作会强制删除文件夹及文件夹下的所有内容", "确定", "取消"))
                     {
-                        string.Format("{0}/{1}", Application.dataPath, config.AssetbundlePath).CheckForDeleteDir();
-                        string.Format("{0}/{1}.meta", Application.dataPath, config.AssetbundlePath).CheckForDeleteFile();
+                        DeleteAbOrMetaFile(string.Format("{0}/{1}", Application.dataPath, config.AssetbundlePath));
                         AssetDatabase.Refresh();
                     }
                 }
@@ -314,7 +391,7 @@ namespace ZFramework.Editor
                     }
                 }
                 EditorGUILayout.EndHorizontal();
-                
+
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("服务器地址和资源URL的配置：", EditorStyles.boldLabel);
@@ -367,10 +444,9 @@ namespace ZFramework.Editor
                     List<AssetFileInfo> tmp = new List<AssetFileInfo>();
                     for (int i = 0; i < uiPrefabInfos.Count; i++)
                     {
-                       if(uiPrefabInfos[i].selected)
+                        if (uiPrefabInfos[i].selected)
                         {
-                            File.Delete(uiPrefabInfos[i].fileAbsPath);
-                            File.Delete(uiPrefabInfos[i].fileAbsPath + ".meta");
+                            DeleteAbOrMetaFile(uiPrefabInfos[i].fileAbsPath);
                         }
                         else
                         {
@@ -385,7 +461,7 @@ namespace ZFramework.Editor
 
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
-                if(GUILayout.Button("打开 Application.persistentDataPath 的文件夹"))
+                if (GUILayout.Button("打开 Application.persistentDataPath 的文件夹"))
                 {
                     if (Directory.Exists(Application.persistentDataPath))
                     {
@@ -408,7 +484,7 @@ namespace ZFramework.Editor
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
-                if(GUILayout.Button("打开数据库所在文件夹", EditorStyles.miniButtonLeft))
+                if (GUILayout.Button("打开数据库所在文件夹", EditorStyles.miniButtonLeft))
                 {
                     if (Directory.Exists(Application.persistentDataPath))
                     {
@@ -420,6 +496,7 @@ namespace ZFramework.Editor
                         EditorUtility.RevealInFinder(path);
                     }
                 }
+                GUILayout.Space(2);
                 if (GUILayout.Button("删除所有数据库", EditorStyles.miniButtonMid))
                 {
                     try
@@ -429,18 +506,19 @@ namespace ZFramework.Editor
                         {
                             for (int i = 0; i < files.Length; i++)
                             {
-                                File.Delete(files[i]);
+                                DeleteAbOrMetaFile(files[i]);
                             }
                             dbPaths.Clear();
                             oriSelectDb = -1;
                             EditorUtility.DisplayDialog("删除数据库", "成功", "确定");
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        EditorUtility.DisplayDialog("删除数据库异常", "原因："+e.Message, "确定");
+                        EditorUtility.DisplayDialog("删除数据库异常", "原因：" + e.Message, "确定");
                     }
                 }
+                GUILayout.Space(2);
                 if (GUILayout.Button("删除所有数据库中的表", EditorStyles.miniButtonMid))
                 {
                     List<string> dbPaths = Directory.GetFiles(Application.persistentDataPath, "*.db", SearchOption.TopDirectoryOnly).ToList();
@@ -454,6 +532,7 @@ namespace ZFramework.Editor
                         }
                     }
                 }
+                GUILayout.Space(2);
                 if (GUILayout.Button("删除所有数据库中的表记录", EditorStyles.miniButtonRight))
                 {
                     List<string> dbPaths = Directory.GetFiles(Application.persistentDataPath, "*.db", SearchOption.TopDirectoryOnly).ToList();
@@ -479,14 +558,14 @@ namespace ZFramework.Editor
 
                     if (GUILayout.Button("删除此库中所有的表"))
                     {
-                        if(EditorUtility.DisplayDialog("敏感操作提醒", "确认删除此库中所有的表？", "确认", "取消"))
+                        if (EditorUtility.DisplayDialog("敏感操作提醒", "确认删除此库中所有的表？", "确认", "取消"))
                         {
                             bool res = DBOperator.DropAllTables(new List<string>() { dbPaths[currSelectDb].fileAbsPath });
                             EditorUtility.DisplayDialog("删除所有数据库中的表", res ? "成功" : "失败", "确定");
                             if (res)
                             {
                                 oriSelectDb = -1;
-                            }                            
+                            }
                         }
                     }
                     if (GUILayout.Button("删除此库中所有的表记录"))
@@ -556,7 +635,7 @@ namespace ZFramework.Editor
                                     updateValueList.Add("");
                                 }
                             }
-                           
+
                         }
                         EditorGUILayout.Space();
                         EditorGUILayout.Space();
@@ -596,6 +675,7 @@ namespace ZFramework.Editor
                                     selectedRecord[i] = true;
                                 }
                             }
+                            GUILayout.Space(2);
                             if (GUILayout.Button("全部不选中", EditorStyles.miniButtonRight))
                             {
                                 for (int i = 0; i < selectedRecord.Count; i++)
@@ -605,11 +685,12 @@ namespace ZFramework.Editor
                             }
                             GUILayout.Space(20);
                         }
-                        
+
                         if (GUILayout.Button("增", EditorStyles.miniButtonLeft))
                         {
                             stateAddRecord = true;
                         }
+                        GUILayout.Space(2);
                         if (GUILayout.Button("删", EditorStyles.miniButtonMid))
                         {
                             List<int> index = new List<int>();
@@ -620,15 +701,16 @@ namespace ZFramework.Editor
                                     index.Add(i);
                                 }
                             }
-                            if(index.Count > 0 && EditorUtility.DisplayDialog("提醒：", "选择选择删除的记录数量为：" + index.Count, "确定删除", "取消"))
+                            if (index.Count > 0 && EditorUtility.DisplayDialog("提醒：", "选择选择删除的记录数量为：" + index.Count, "确定删除", "取消"))
                             {
                                 int res = DBOperator.DeleteRecords(currSelectTable, index, tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
-                                EditorUtility.DisplayDialog("删除结果：", string.Format("选择的数量：{0}\r\n删除的数量：{1}\r\n结果对比：{2}", index.Count, res, index.Count == res?"删除成功":"删除失败"), "确定");
+                                EditorUtility.DisplayDialog("删除结果：", string.Format("选择的数量：{0}\r\n删除的数量：{1}\r\n结果对比：{2}", index.Count, res, index.Count == res ? "删除成功" : "删除失败"), "确定");
                                 // 刷新表记录
                                 oriSelectTableIndex = -1;
                             }
-                            
+
                         }
+                        GUILayout.Space(2);
                         if (GUILayout.Button("改", EditorStyles.miniButtonRight))
                         {
                             stateUpdateRecord = true;
@@ -665,11 +747,11 @@ namespace ZFramework.Editor
                                 {
                                     addValueList[i] = EditorGUILayout.IntField(currSelectTable.Columns[i].ToString(), (int)addValueList[i]);
                                 }
-                                else if(currSelectTable.Columns[i].DataType == typeof(double))
+                                else if (currSelectTable.Columns[i].DataType == typeof(double))
                                 {
                                     addValueList[i] = EditorGUILayout.IntField(currSelectTable.Columns[i].ToString(), (int)addValueList[i]);
                                 }
-                                else if(currSelectTable.Columns[i].DataType == typeof(long))
+                                else if (currSelectTable.Columns[i].DataType == typeof(long))
                                 {
                                     addValueList[i] = EditorGUILayout.IntField(currSelectTable.Columns[i].ToString(), (int)addValueList[i]);
                                 }
@@ -679,7 +761,7 @@ namespace ZFramework.Editor
                                 }
                                 else if (currSelectTable.Columns[i].DataType == typeof(bool))
                                 {
-                                    addValueList[i] = EditorGUILayout.Toggle(currSelectTable.Columns[i].ToString(),  (bool)addValueList[i]);
+                                    addValueList[i] = EditorGUILayout.Toggle(currSelectTable.Columns[i].ToString(), (bool)addValueList[i]);
                                 }
                                 else
                                 {
@@ -693,7 +775,7 @@ namespace ZFramework.Editor
                                 int res = DBOperator.InsertRecord(addValueList, currSelectTable.Columns, tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
 
                                 EditorUtility.DisplayDialog("添加结果：", res > 0 ? "添加成功" : "添加失败", "确定");
-                                if(res > 0)
+                                if (res > 0)
                                 {
                                     stateAddRecord = false;
                                     oriSelectTableIndex = -1;
@@ -746,7 +828,7 @@ namespace ZFramework.Editor
                             if (GUILayout.Button("更新", GUILayout.MaxWidth(numberColumnWidth)))
                             {
                                 int res = DBOperator.UpdateReord(updateValueList, currSelectTable.Rows[updateSelectIndex].ItemArray.ToList(), currSelectTable.Columns, tablesInSelectedDb[currSelectTableIndex], dbPaths[currSelectDb].fileAbsPath);
-                                
+
                                 if (res > 0)
                                 {
                                     stateUpdateRecord = false;
@@ -768,7 +850,7 @@ namespace ZFramework.Editor
                         usingAutoCmd = EditorGUILayout.Foldout(usingAutoCmd, "自查询命令");
                         if (usingAutoCmd)
                         {
-                            autoCmdStr = EditorGUILayout.TextArea(autoCmdStr,GUILayout.MaxHeight(50f));
+                            autoCmdStr = EditorGUILayout.TextArea(autoCmdStr, GUILayout.MaxHeight(50f));
                             if (GUILayout.Button("执行命令") && !string.IsNullOrEmpty(autoCmdStr))
                             {
                                 autoCmdDt = DBOperator.GetDataTabelAuto(autoCmdStr, dbPaths[currSelectDb].fileAbsPath);
@@ -824,6 +906,176 @@ namespace ZFramework.Editor
             else if (selectedOption == 2)
             {
                 EditorGUILayout.HelpBox(titleInfo, MessageType.Info, true);
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                if (selectAssetDic.Count > 0)
+                {
+                    EditorGUILayout.LabelField("选择的资源：");
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("选择", GUILayout.MaxWidth(30));
+                    EditorGUILayout.LabelField("物体或资源名字", GUILayout.MaxWidth(150));
+                    EditorGUILayout.LabelField("路径");
+                    EditorGUILayout.EndHorizontal();
+                    float scvHeight = selectAssetDic.Count > 15 ? 200 : selectAssetDic.Count * 20;
+                    abAssetScvPos = EditorGUILayout.BeginScrollView(abAssetScvPos, GUILayout.MaxHeight(scvHeight));
+                    List<string> keys = selectAssetDic.Keys.ToList();
+                    for (int i = 0; i < keys.Count; i++)
+                    {
+                        string key = keys[i];
+                        EditorGUILayout.BeginHorizontal();
+                        selectAssetDic[key].selected = GUILayout.Toggle(selectAssetDic[key].selected, "", GUILayout.MaxWidth(30));
+                        GUILayout.Label(selectAssetDic[key].assetbundleName, EditorStyles.label, GUILayout.MaxWidth(150));
+                        GUILayout.Label(string.Join(",", selectAssetDic[key].assetNames), EditorStyles.label);
+                        if (GUILayout.Button("定位", GUILayout.MaxWidth(50)))
+                        {
+                            // TODO
+                        }
+                        if (GUILayout.Button("移除", GUILayout.MaxWidth(50)))
+                        {
+                            RemoveAssetInfo(new List<string>() { keys[i] });
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    EditorGUILayout.EndScrollView();
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(50);
+                    if (GUILayout.Button("全部选中", EditorStyles.miniButtonLeft))
+                    {
+                        SetAssetInfoState(true);
+                    }
+                    GUILayout.Space(2);
+                    if (GUILayout.Button("全部不选中", EditorStyles.miniButtonMid))
+                    {
+                        SetAssetInfoState(false);
+                    }
+                    GUILayout.Space(2);
+                    if (GUILayout.Button("移除所选", EditorStyles.miniButtonRight))
+                    {
+                        RemoveAssetInfo(selectAssetDic.Where(kv => kv.Value.selected).Select(t => t.Value.assetbundleName).ToList());
+                    }
+                    GUILayout.Space(50);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(50);
+                    selectBuildPlatformIndex = EditorGUILayout.Popup(selectBuildPlatformIndex, assetPlatforms);
+                    selectBuildAbOption = EditorGUILayout.Popup(selectBuildAbOption, Enum.GetNames(typeof(BuildAssetBundleOptions)));
+                    selectBuildType = EditorGUILayout.Popup(selectBuildType, assetBuildType);
+                    if (GUILayout.Button("选择性打包"))
+                    {
+                        List<SelectAssetInfo> slct = selectAssetDic.Where(kv => kv.Value.selected).Select(t => t.Value).ToList();
+                        if (slct.Count > 0)
+                        {
+                            string dir = string.Format("{0}/{1}/{2}", Application.dataPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                            dir.CheckOrCreateDir();
+                            string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
+                            BuildAssetBundleOptions option = (BuildAssetBundleOptions)Enum.Parse(typeof(BuildAssetBundleOptions), optionName);
+                            BuildTarget target = BuildTarget.StandaloneWindows64;
+                            switch (selectBuildPlatformIndex)
+                            {
+                                case 0:
+                                    target = BuildTarget.StandaloneWindows64;
+                                    break;
+                                case 1:
+                                    target = BuildTarget.Android;
+                                    break;
+                                case 2:
+                                    target = BuildTarget.iOS;
+                                    break;
+                            }
+                            ABOperator.BuildAssetBundle(selectBuildType, slct, dir, option, target);
+                            RefreshAbInfos(dir);
+                        }
+                    }
+                    if (GUILayout.Button("直接标签打包"))
+                    {
+                        // TODO
+                    }
+                    GUILayout.Space(50);
+                    EditorGUILayout.EndHorizontal();
+                }
+                else
+                {
+                    GUILayout.Label("没有选择任何资源！");
+                }
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                GUILayout.Label("平台AB包：");
+                currSelectAbPlatformIndex = GUILayout.Toolbar(currSelectAbPlatformIndex, assetPlatforms);
+                if(currSelectAbPlatformIndex!= oriSelectAbPlatformIndex)
+                {
+                    oriSelectAbPlatformIndex = currSelectAbPlatformIndex;
+                    string dir = string.Format("{0}/{1}/{2}", Application.dataPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                    RefreshAbInfos(dir);
+                }
+                if (abInfos.Count > 0)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("选择", GUILayout.MaxWidth(30));
+                    GUILayout.Label("ab包名字", GUILayout.MaxWidth(150));
+                    GUILayout.Label("路径");
+                    EditorGUILayout.EndHorizontal();
+                    float scvHeight = abInfos.Count > 15 ? 200 : abInfos.Count * 20;
+                    selectAbPos = EditorGUILayout.BeginScrollView(selectAbPos, GUILayout.MaxHeight(scvHeight));
+                    for (int i = 0; i < abInfos.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        abInfos[i].selected = GUILayout.Toggle(abInfos[i].selected, "", GUILayout.MaxWidth(30));
+                        GUILayout.Label(abInfos[i].assetbundleName, GUILayout.MaxWidth(150));
+                        GUILayout.Label(abInfos[i].assetNames[0]);
+                        if (GUILayout.Button("复制路径", GUILayout.MaxWidth(100)))
+                        {
+                            EditorGUIUtility.systemCopyBuffer = abInfos[i].assetNames[0];
+                            ShowNotification(new GUIContent("已经复制到粘贴板"));
+                        }
+                        if (GUILayout.Button("定位", GUILayout.MaxWidth(50)))
+                        {
+                            // TODO
+                        }
+                        if (GUILayout.Button("删除", GUILayout.MaxWidth(50)))
+                        {
+                            // TODO
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    EditorGUILayout.EndScrollView();
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(50);
+                    if(GUILayout.Button("全部选中", EditorStyles.miniButtonLeft))
+                    {
+                        SetAbInfoState(true);
+                    }
+                    GUILayout.Space(3);
+                    if (GUILayout.Button("全部不选中", EditorStyles.miniButtonMid))
+                    {
+                        SetAbInfoState(false);
+                    }
+                    GUILayout.Space(3);
+                    if (GUILayout.Button("删除所选", EditorStyles.miniButtonRight))
+                    {
+                        List<SelectAssetInfo> slct = abInfos.Where(p => p.selected).ToList();
+                        if (slct.Count > 0)
+                        {
+                            for (int i = 0; i < slct.Count; i++)
+                            {
+                                DeleteAbOrMetaFile(slct[i].assetNames[0]);
+                            }
+                            AssetDatabase.Refresh();
+                        }
+                    }
+                    GUILayout.Space(50);
+                    EditorGUILayout.EndHorizontal();
+                }
+                else
+                {
+                    ShowNotification(new GUIContent("没有ab包信息"));
+                }
             }
             // 测试
             else if (selectedOption == 3)
@@ -842,9 +1094,92 @@ namespace ZFramework.Editor
             this.Repaint();
         }
 
+        private void OnDestroy()
+        {
+            // 保存资源选项
+            SaveAssetInfo();
+        }
+
         #endregion
 
         #region 私有函数
+
+        /// <summary>
+        /// 删除ab包以及附属的manifest、meta等文件
+        /// </summary>
+        /// <param name="path"></param>
+        private void DeleteAbOrMetaFile(string path)
+        {
+            path.CheckForDeleteFile();
+            string.Format("{0}.meta", path).CheckForDeleteFile();
+            string.Format("{0}.manifest", path).CheckForDeleteFile();
+            string.Format("{0}.manifest.meta", path).CheckForDeleteFile();
+        }
+
+        /// <summary>
+        /// 设置选中ab包的状态
+        /// </summary>
+        /// <param name="state"></param>
+        private void SetAbInfoState(bool state)
+        {
+            for (int i = 0; i < abInfos.Count; i++)
+            {
+                abInfos[i].selected = state;
+            }
+        }
+
+        /// <summary>
+        /// ab包的路径
+        /// </summary>
+        /// <param name="dir"></param>
+        private void RefreshAbInfos(string dir)
+        {
+            abInfos.Clear();
+            if (Directory.Exists(dir))
+            {
+                string[] finfos = Directory.GetFiles(dir, "*.ab");
+                foreach (var info in finfos)
+                {
+                    abInfos.Add(new SelectAssetInfo() { selected = false, assetbundleName = Path.GetFileName(info), assetNames = new List<string>() { info } });
+                }
+            }
+        }
+
+        /// <summary>
+        /// 根据key值移除所选的资源信息
+        /// </summary>
+        /// <param name="keys"></param>
+        private static void RemoveAssetInfo(List<string> keys)
+        {
+            if (keys != null && keys.Count > 0)
+            {
+                foreach (var key in keys)
+                {
+                    selectAssetDic.Remove(key);
+                }
+            }
+            SaveAssetInfo();
+        }
+
+        /// <summary>
+        /// 设置资源是否选中
+        /// </summary>
+        /// <param name="state"></param>
+        private static void SetAssetInfoState(bool state)
+        {
+            foreach (var key in selectAssetDic.Keys)
+            {
+                selectAssetDic[key].selected = state;
+            }
+        }
+
+        /// <summary>
+        /// 存储选择的资源信息
+        /// </summary>
+        private static void SaveAssetInfo()
+        {
+            EditorPrefs.SetString(EDITOR_AB_INFO_KEY, selectAssetDic.ToNewtonJson());
+        }
 
         /// <summary>
         /// 获取UI预制体的文件信息
@@ -875,6 +1210,25 @@ namespace ZFramework.Editor
         #endregion
 
         #region Editor使用的结构
+
+        /// <summary>
+        /// 选择的资源的信息，供ab包功能信息使用
+        /// </summary>
+        public class SelectAssetInfo
+        {
+            /// <summary>
+            /// 是否选中
+            /// </summary>
+            public bool selected = false;
+            /// <summary>
+            /// ab包的名字
+            /// </summary>
+            public string assetbundleName = string.Empty;
+            /// <summary>
+            /// ab包的依赖包
+            /// </summary>
+            public List<string> assetNames = new List<string>();
+        }
 
         /// <summary>
         /// 关于网络资源上的配置，生成的json文件放到Application.StreamingAssets文件夹内，由程序读取内容
