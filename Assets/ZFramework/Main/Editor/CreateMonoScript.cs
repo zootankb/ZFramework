@@ -31,7 +31,6 @@ namespace ZFramework.Editor
             con = con.Replace("{1}", scriptName);
             con = con.Replace("{2}", sb.ToString());
             savePath.WriteTextAssetContentStr(con);
-            AssetDatabase.Refresh();
         }
 
         /// <summary>

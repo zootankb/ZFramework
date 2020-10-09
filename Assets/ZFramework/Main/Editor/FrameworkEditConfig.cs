@@ -163,9 +163,10 @@ namespace ZFramework.Editor
         /// <summary>
         /// 功能点提示
         /// </summary>
-        private const string titleInfo = "注意点：\r\n\r\n" +
-                "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！\r\n\r\n" +
-                "能以同一套打包方式同时打包资源ab包和场景包，代码自动区别和过滤！";
+        private const string titleInfo = "注意点：\r\n" +
+                "此操作中可以自动打包带有Assetbundle标记的资源，也可以选择性的打包(名字为资源在unity里面的资源名字，统一为小写)，压缩方式和平台也是可选择的！" +
+                "能以同一套打包方式同时打包资源ab包和场景包，代码自动区别和过滤！\r\n" +
+                "在点击生成资源常量的时候，会显示找不到ab包的提示，解决办法为：点击下其他平台，再点击目标平台就可以了，暂时不知道原因为何！";
 
         /// <summary>
         /// 存储选取的物体的信息key值，由EditorPrefs使用
@@ -231,6 +232,15 @@ namespace ZFramework.Editor
         /// ab包常量的脚本名字
         /// </summary>
         private string assetPropertyScriptName = "AssetConfig";
+        #endregion
+
+        #region Data UI操作
+
+       private bool testOne =  false;
+       private bool testTwo =  false;
+        private bool testThr = false;
+
+
         #endregion
 
         #region MenuItem的操作
@@ -1105,6 +1115,7 @@ namespace ZFramework.Editor
                         string savePath = string.Format("{0}/{1}/{2}.cs",Application.dataPath, config.UIScriptPath, assetPropertyScriptName);
                         config.UIScriptPath.CheckOrCreateDir();
                         CreateMonoScript.CreateAssetNameScript(abInfos.Select(p=>p.assetbundleName).ToList(), assetPropertyScriptName, config.FrameworkNamespace, savePath);
+                        AssetDatabase.Refresh();
                     }
                     GUILayout.Space(50);
                     EditorGUILayout.EndHorizontal();
@@ -1118,11 +1129,12 @@ namespace ZFramework.Editor
             else if (selectedOption == 3)
             {
                 //      复选框
-                EditorGUILayout.BeginHorizontal(EditorStyles.centeredGreyMiniLabel);
-                //testOne = EditorGUILayout.Toggle(testOne, EditorStyles.miniButtonLeft);
-                //testTwo = EditorGUILayout.Toggle(testTwo, EditorStyles.miniButtonMid);
-                //testThr = EditorGUILayout.Toggle(testThr, EditorStyles.miniButtonRight);
                 EditorGUILayout.BeginHorizontal();
+                testOne = EditorGUILayout.ToggleLeft("testOne", testOne, EditorStyles.boldLabel);
+                testTwo = EditorGUILayout.ToggleLeft("testTwo", testTwo, EditorStyles.boldLabel);
+                testThr = EditorGUILayout.ToggleLeft("testThr", testThr, EditorStyles.boldLabel);
+                EditorGUILayout.BeginHorizontal();
+
             }
         }
 
