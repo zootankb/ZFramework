@@ -49,8 +49,8 @@ namespace ZFramework.UI
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="size"></param>
-        public UIMsgNodeLinked(uint size = 0)
+        /// <param name="size">0为无限个，默认能容纳1000个事件id的大小</param>
+        public UIMsgNodeLinked(uint size = 1000)
         {
             this.size = size;
             this.lastNode = this.root;
@@ -63,7 +63,16 @@ namespace ZFramework.UI
         /// <param name="msg"></param>
         public void AddNode(int eventId, Action<int, ZMsg> msg)
         {
-            AddNode(new UIMsgNode())
+            AddNode(new UIMsgNode(new UIMsg(eventId, msg)));
+        }
+
+        /// <summary>
+        /// 添加节点
+        /// </summary>
+        /// <param name="msg"></param>
+        public void AddNode(UIMsg msg)
+        {
+            AddNode(new UIMsgNode(msg));
         }
 
         /// <summary>
@@ -76,26 +85,90 @@ namespace ZFramework.UI
             {
                 return;
             }
+            //  不固定容量
             if(size == 0)
             {
                 if (root == null)
                 {
-                    root = new UIMsgNode
+                    lastNode = root = node;
+                    ++count;
+                }
+                else
+                {
+                    UIMsgNode currNode = root;
+                    while (currNode != null &&!currNode.value.HasEventId(node.value.EventId))
+                    {
+                        currNode = currNode.nextNode;
+                    }
+                    // 没有相同的id事件
+                    if(currNode == null)
+                    {
+                        lastNode.nextNode = node;
+                        lastNode = node;
+                        ++count;
+                    }
+                    // 有相同的id事件
+                    else
+                    {
+                        currNode.value.Register(node.value.EventId, node.value.Ets);
+                    }
                 }
             }
+            // 固定容量
             else
             {
                 if(count < size)
                 {
-                    // TODO
+                    if (root == null)
+                    {
+                        lastNode = root = node;
+                        ++count;
+                    }
+                    else
+                    {
+                        UIMsgNode currNode = root;
+                        while (currNode != null && !currNode.value.HasEventId(node.value.EventId))
+                        {
+                            currNode = currNode.nextNode;
+                        }
+                        // 没有相同的id事件
+                        if (currNode == null)
+                        {
+                            lastNode.nextNode = node;
+                            lastNode = node;
+                            ++count;
+                        }
+                        // 有相同的id事件
+                        else
+                        {
+                            currNode.value.Register(node.value.EventId, node.value.Ets);
+                        }
+                    }
                 }
             }
         }
 
-       
+        /// <summary>
+        /// 移除事件，但不移除节点
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="msg"></param>
+        public void SubNode(int eventId, Action<int, ZMsg> msg)
+        {
+            SubNode(new UIMsgNode(new UIMsg(eventId, msg)));
+        }
 
         /// <summary>
-        /// 移除节点
+        /// 移除事件，但不移除节点
+        /// </summary>
+        /// <param name="msg"></param>
+        public void SubNode(UIMsg msg)
+        {
+            SubNode(new UIMsgNode(msg));
+        }
+
+        /// <summary>
+        /// 移除事件，但不移除节点
         /// </summary>
         /// <param name="node"></param>
         public void SubNode(UIMsgNode node)
@@ -104,7 +177,31 @@ namespace ZFramework.UI
             {
                 return;
             }
-            // TODO
+            UIMsgNode currNode = root;
+            while (currNode != null && !currNode.value.HasEventId(node.value.EventId))
+            {
+                currNode = currNode.nextNode;
+            }
+            // 相同的id事件
+            if (currNode != null)
+            {
+                currNode.value.Unregister(node.value.EventId, node.value.Ets);
+            }
+        }
+
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="msg"></param>
+        public void SendMsg(uint eventId , ZMsg msg)
+        {
+            UIMsgNode currNode = root;
+            while(currNode != null)
+            {
+                currNode.value.SendMsg((int)eventId, msg);
+                currNode = currNode.nextNode;
+            }
         }
     }
 }

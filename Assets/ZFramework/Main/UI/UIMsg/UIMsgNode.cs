@@ -19,13 +19,10 @@ namespace ZFramework.UI
         /// </summary>
         public UIMsg value = null;
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="value"></param>
-        public UIMsgNode(UIMsg value = null)
+        public UIMsgNode(UIMsg value = null, UIMsgNode nextNode = null)
         {
             this.value = value;
+            this.nextNode = nextNode;
         }
     }
 }

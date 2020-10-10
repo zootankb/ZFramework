@@ -11,13 +11,49 @@ namespace ZFramework.UI
     public class UIMsg : IUIMsg
     {
         /// <summary>
-        /// 消息数据转储
+        /// 事件id
         /// </summary>
-        private UIMsgData msgData = null;
+        private int eventId = -1;
 
-        public UIMsg(UIMsgData msgData = null)
+        /// <summary>
+        /// 事件存储
+        /// </summary>
+        private Action<int, ZMsg> ets = null;
+
+        /// <summary>
+        /// 事件id
+        /// </summary>
+        public int EventId
         {
-            this.msgData = msgData ?? new UIMsgData();
+            get { return eventId; }
+        }
+
+        /// <summary>
+        /// 消息体
+        /// </summary>
+        public Action<int, ZMsg> Ets
+        {
+            get { return ets; }
+        }
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="ets"></param>
+        public UIMsg(int eventId = -1, Action<int, ZMsg> ets = null)
+        {
+            this.eventId = eventId;
+            this.ets = ets;
+        }
+
+        /// <summary>
+        /// 事件id
+        /// </summary>
+        /// <param name="eventId"></param>
+        public bool HasEventId(int eventId)
+        {
+            return this.eventId == eventId;
         }
 
         /// <summary>
@@ -27,7 +63,10 @@ namespace ZFramework.UI
         /// <param name="msg"></param>
         public void SendMsg(int eventId, ZMsg msg)
         {
-            msgData.SendMsg(eventId, msg);
+            if (this.eventId == eventId)
+            {
+                ets?.Invoke(eventId, msg);
+            }
         }
 
         /// <summary>
@@ -37,7 +76,10 @@ namespace ZFramework.UI
         /// <param name="ets"></param>
         public void Register(int eventId, Action<int, ZMsg> ets)
         {
-            msgData.Register(eventId, ets);
+            if (this.eventId == eventId)
+            {
+                this.ets += ets;
+            }
         }
 
         /// <summary>
@@ -47,7 +89,10 @@ namespace ZFramework.UI
         /// <param name="ets"></param>
         public void Unregister(int eventId, Action<int, ZMsg> ets)
         {
-            msgData.Unregister(eventId, ets);
+            if (this.eventId == eventId)
+            {
+                this.ets -= ets;
+            }
         }
     }
 }
