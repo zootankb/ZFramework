@@ -49,8 +49,8 @@ namespace ZFramework.UI
         /// <summary>
         /// 构造器
         /// </summary>
-        /// <param name="size">0为无限个，默认能容纳1000个事件id的大小</param>
-        public UIMsgNodeLinked(uint size = 1000)
+        /// <param name="size">默认0能容纳无限个事件id的大小</param>
+        public UIMsgNodeLinked(uint size = 0)
         {
             this.size = size;
             this.lastNode = this.root;
@@ -194,12 +194,12 @@ namespace ZFramework.UI
         /// </summary>
         /// <param name="eventId"></param>
         /// <param name="msg"></param>
-        public void SendMsg(uint eventId , ZMsg msg)
+        public void SendMsg(int eventId , ZMsg msg)
         {
             UIMsgNode currNode = root;
             while(currNode != null)
             {
-                currNode.value.SendMsg((int)eventId, msg);
+                currNode.value.SendMsg(eventId, msg);
                 currNode = currNode.nextNode;
             }
         }

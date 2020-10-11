@@ -9,62 +9,95 @@ namespace ZFramework.UI
     /// </summary>
     public class UIPanelBehaviour : MonoBehaviour
     {
-        /// <summary>
-        /// 传递给ui的数据
-        /// </summary>
-        public UIPanelData uidata = null;
-
-        /// <summary>
-        /// 初始化UI数据
-        /// </summary>
-        /// <param name="uidata"></param>
-        protected void InitUIData(UIPanelData uidata)
+        #region Mono
+        private void Awake()
         {
-            this.uidata = uidata;
+            OnOpen();
+        }
+
+        private void OnEnable()
+        {
+            OnShow();
+        }
+
+        private void Start()
+        {
+            OnInit(null);
+        }
+
+        private void OnDisable()
+        {
+            OnHide();
+        }
+
+        private void OnDestroy()
+        {
+            OnBeforeDestroy();
+        }
+        #endregion
+
+        #region Virtual
+        /// <summary>
+        /// 打开，对应Awake
+        /// </summary>
+        protected virtual void OnOpen()
+        {
+            // Pass
         }
 
         /// <summary>
-        /// 发送消息
+        /// 展示，对应OnEnable
         /// </summary>
-        /// <param name="evenId"></param>
-        /// <param name="msg"></param>
-        protected virtual void SendMsg(int evenId, UIMsg msg)
+        protected virtual void OnShow()
         {
-
+            // Pass
         }
 
         /// <summary>
-        /// 消息传输
+        /// 初始化，对应Start
+        /// </summary>
+        /// <param name="uiData"></param>
+        protected virtual void OnInit(IUIData uiData)
+        {
+            // Pass
+        }
+
+        /// <summary>
+        /// 隐藏，对应OnDisable
+        /// </summary>
+        protected virtual void OnHide()
+        {
+            // Pass
+        }
+
+        /// <summary>
+        /// 销毁，对应OnDestroy
+        /// </summary>
+        protected virtual void OnBeforeDestroy()
+        {
+            // Pass
+        }
+
+        /// <summary>
+        /// 消息接收器
         /// </summary>
         /// <param name="eventId"></param>
         /// <param name="msg"></param>
-        protected virtual void ProcessMsg(int eventId, UIMsg msg)
+        protected virtual void ProcessMsg(int eventId, ZMsg msg)
         {
-            // TODO
+            // Pass
         }
 
-        protected virtual void OnInit(IUIData uIData)
+        /// <summary>
+        /// 消息发送
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="msg"></param>
+        protected virtual void SendMsg(int eventId, ZMsg msg)
         {
-
+            // Pass
         }
 
-        protected virtual void OnOpen(IUIData uIData)
-        {
-
-        }
-
-        protected virtual void OnShow()
-        {
-
-        }
-
-        protected virtual void OnHide()
-        {
-
-        }
-        protected virtual void OnClose()
-        {
-
-        }
+        #endregion
     }
 }

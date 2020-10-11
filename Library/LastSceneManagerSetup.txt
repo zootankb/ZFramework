@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Test/SampleScene.unity
+- path: Assets/ZFramework/Examples/TEst/test.unity
   isLoaded: 1
   isActive: 1
