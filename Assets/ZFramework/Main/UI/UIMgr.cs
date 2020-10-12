@@ -64,6 +64,11 @@ namespace ZFramework.UI
         private GameObject eventSystem = null;
 
         /// <summary>
+        /// UI摄像机
+        /// </summary>
+        private Camera uicamera = null;
+
+        /// <summary>
         /// UI的各个层
         /// </summary>
         private Dictionary<UILevel, GameObject> uiLevels = new Dictionary<UILevel, GameObject>();
@@ -78,7 +83,12 @@ namespace ZFramework.UI
         /// <summary>
         /// ui事件系统
         /// </summary>
-        public const string EVENT_SYSTEM = "EventSystem";
+        private const string EVENT_SYSTEM = "EventSystem";
+
+        /// <summary>
+        /// UI摄像机
+        /// </summary>
+        private const string UI_CAMERA = "UICamera";
         #endregion
 
         #region Private Func
@@ -120,6 +130,24 @@ namespace ZFramework.UI
                 go.transform.SetParent(uiRoot.transform);
                 uiLevels.Add((UILevel)level, go);
             }
+
+            GameObject camGo = new GameObject(UI_CAMERA, typeof(Camera));
+            camGo.transform.SetParent(transform);
+            uicamera = camGo.GetComponent<Camera>();
+            uicamera.clearFlags = CameraClearFlags.SolidColor;
+            uicamera.backgroundColor = Color.blue;
+            uicamera.cullingMask = 1 << 5;  //只渲染UI层    
+            uicamera.orthographic = true;
+            uicamera.orthographicSize = 5;
+            uicamera.nearClipPlane = 0;
+            uicamera.pixelRect = new Rect(0, 0, Screen.width, Screen.height);
+            uicamera.targetTexture = null;
+            uicamera.farClipPlane = 1;
+            uicamera.depth = 0;
+            uicamera.useOcclusionCulling = true;
+            uicamera.allowHDR = true;
+            uicamera.allowMSAA = true;
+            uicamera.allowDynamicResolution = false;
         }
 
         /// <summary>
@@ -130,6 +158,7 @@ namespace ZFramework.UI
         private GameObject CreateUILevelGo(UILevel level)
         {
             GameObject go = new GameObject(level.ToString(), typeof(RectTransform));
+            go.layer = LayerMask.NameToLayer("UI");
             RectTransform rt = go.GetComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
@@ -153,6 +182,32 @@ namespace ZFramework.UI
         private T OpenUI<T>(IUIData uIData = null, UILevel level = UILevel.Common, string assetName = null, string abName = null) where T : UIPanel
         {
             return null;
+        }
+
+        /// <summary>
+        /// 关闭UI
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private void CloseUI<T>() where T : UIPanel
+        {
+            // pass
+        }
+
+        /// <summary>
+        /// 关闭UI
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private T ＧetUI<T>() where T : UIPanel
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// 关闭所有的UI
+        /// </summary>
+        private void CloseAllUI()
+        {
+            // pass
         }
         #endregion
 
@@ -185,6 +240,34 @@ namespace ZFramework.UI
         public static T Open<T>(IUIData uIData = null, UILevel level = UILevel.Common, string assetName = null, string abName = null) where T : UIPanel
         {
             return Instance.OpenUI<T>(uIData, level, assetName, abName);
+        }
+
+        /// <summary>
+        /// 关闭UI界面
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void Close<T>() where T : UIPanel
+        {
+            Instance.CloseUI<T>();
+        }
+
+        /// <summary>
+        /// 获取已经打开的UI
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Get<T>() where T : UIPanel
+        {
+            return Instance.ＧetUI<T>();
+        }
+
+        /// <summary>
+        /// 关闭UI界面
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void CloseAll()
+        {
+            Instance.CloseAllUI();
         }
         #endregion
 

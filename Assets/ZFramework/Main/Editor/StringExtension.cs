@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using ZFramework.Log;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// 字符串的扩展 

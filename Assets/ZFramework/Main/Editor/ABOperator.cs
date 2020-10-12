@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static ZFramework.Editor.FrameworkEditConfig;
+using static ZFramework.ZEditor.FrameworkEditConfig;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// ab包的操作

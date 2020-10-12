@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Data;
 using Mono.Data.Sqlite;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// 数据库的操作者

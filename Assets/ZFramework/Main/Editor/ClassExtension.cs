@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZFramework.Log;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// 类的扩展
@@ -25,7 +25,7 @@ namespace ZFramework.Editor
                 JsonSerializerSettings setting = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore };
                 jsonconfig = JsonConvert.SerializeObject(t, setting);
             }
-            catch(JsonException e)
+            catch (JsonException e)
             {
                 LogOperator.AddFinalRecord("ClassExtension.ToNewtonJson序列化时异常", "异常原因：" + e.Message);
             }

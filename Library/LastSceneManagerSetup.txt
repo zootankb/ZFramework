@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ZFramework/Examples/TEst/test.unity
+- path: Assets/ZFramework/Examples/04.InitUIMgr/InitUIMgr.unity
   isLoaded: 1
   isActive: 1

@@ -5,7 +5,7 @@ using UnityEngine;
 using System.IO;
 using UnityEditor;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// 创建脚本C#文件

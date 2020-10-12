@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Data;
 
-namespace ZFramework.Editor
+namespace ZFramework.ZEditor
 {
     /// <summary>
     /// 框架配置操作窗口
@@ -286,9 +286,9 @@ namespace ZFramework.Editor
         {
             #region 初始化 框架配置操作
             // 1.寻找配置文件
-            if (File.Exists(ConfigContent.CONFIG_FILE_PATH))
+            if (File.Exists(ZFramework.ConfigContent.CONFIG_FILE_PATH))
             {
-                string json = ConfigContent.CONFIG_FILE_PATH.GetTextAssetContentStr();
+                string json = ZFramework.ConfigContent.CONFIG_FILE_PATH.GetTextAssetContentStr();
                 config = json.ToNewtonObjectT<ConfigContent>();
             }
             else
@@ -298,9 +298,9 @@ namespace ZFramework.Editor
             // 2.根据配置文件寻找ui预制体
             InitUIInfos();
             // 3.根据配置文件找服务器接口和资源更新路径
-            if (File.Exists(NetUrlConfig.NetUrlFileName))
+            if (File.Exists(ZFramework.ConfigContent.NET_URL_FILE_PATH))
             {
-                string json = NetUrlConfig.NetUrlFileName.GetTextAssetContentStr();
+                string json = ZFramework.ConfigContent.NET_URL_FILE_PATH.GetTextAssetContentStr();
                 netUrlConfig = json.ToNewtonObjectT<NetUrlConfig>();
             }
             else
@@ -373,7 +373,7 @@ namespace ZFramework.Editor
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
-                config.AssetbundlePath = EditorGUILayout.TextField("AB包存放路径：", config.AssetbundlePath);
+                config.AssetbundlePath = EditorGUILayout.TextField("AB包,必须在StreamingAssets下：", config.AssetbundlePath);
                 if (GUILayout.Button("创建", GUILayout.MaxWidth(50)))
                 {
                     string.Format("{0}/{1}", Application.dataPath, config.AssetbundlePath).CheckOrCreateDir();
@@ -399,7 +399,7 @@ namespace ZFramework.Editor
                 }
                 if (GUILayout.Button("写入配置文件"))
                 {
-                    ConfigContent.CONFIG_FILE_PATH.WriteTextAssetContentStr(config.ToNewtonJson());
+                   ZFramework.ConfigContent.CONFIG_FILE_PATH.WriteTextAssetContentStr(config.ToNewtonJson());
                     AssetDatabase.Refresh();
                     if (EditorUtility.DisplayDialog("提示：", "若UI预制体文件夹路径改变，是否刷新UI预制体文件夹下的文件信息", "确定刷新", "取消"))
                     {
@@ -418,7 +418,7 @@ namespace ZFramework.Editor
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("创建StreamingAssets文件夹 / 写入网络配置文件"))
                 {
-                    NetUrlConfig.NetUrlFileName.WriteTextAssetContentStr(netUrlConfig.ToNewtonJson());
+                    ZFramework.ConfigContent.NET_URL_FILE_PATH.WriteTextAssetContentStr(netUrlConfig.ToNewtonJson());
                     AssetDatabase.Refresh();
                 }
                 EditorGUILayout.EndHorizontal();
@@ -1310,10 +1310,6 @@ namespace ZFramework.Editor
         public class NetUrlConfig
         {
             /// <summary>
-            /// 固定json文件的名字
-            /// </summary>
-            public readonly static string NetUrlFileName = string.Format("{0}/NET_URL_CONFIG.json", Application.streamingAssetsPath);
-            /// <summary>
             /// API服务器地址
             /// </summary>
             public string APIHost = "http://127.0.0.1:8000";
@@ -1355,11 +1351,6 @@ namespace ZFramework.Editor
         /// </summary>
         public class ConfigContent
         {
-            /// <summary>
-            /// 配置文件所在文件夹
-            /// </summary>
-            public static readonly string CONFIG_FILE_PATH = string.Format("{0}/FRAME_DIR_CONFIG.json", Application.streamingAssetsPath);
-
             /// <summary>
             /// 代码的默认命名空间
             /// </summary>
