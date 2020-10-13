@@ -42,6 +42,10 @@ namespace ZFramework.ZEditor
             /// 资源常量的脚本模板
             /// </summary>
             public static string AssetScriptModel ="namespace {0}\r\n{\r\n\tpublic static class {1}\r\n\t{\r\n{2}\r\n\t}\r\n}";
+
+            public static string UIScriptModel = "";
+            public static string UIDataScriptModel = "";
+
         }
     }
 }

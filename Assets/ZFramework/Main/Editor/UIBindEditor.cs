@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -39,9 +40,7 @@ namespace ZFramework.ZEditor
             uiType = obj.FindProperty("uiType");
             explain = obj.FindProperty("explain");
             uiname.stringValue = target.name;
-           
-            UIBind bind = obj.targetObject as UIBind;
-            uiType.enumValueIndex = GetUITypeIndex(bind);
+            uiType.enumValueIndex = GetUITypeIndex(obj.targetObject as UIBind);
             obj.ApplyModifiedProperties();
         }
 
@@ -66,53 +65,52 @@ namespace ZFramework.ZEditor
             int index = 0;
             if(bind.GetComponent<Text>() != null)
             {
-
+                index = (int)UIBind.UIType.Text;
             }
             else if(bind.GetComponent<Button>() != null)
             {
-
+                index = (int)UIBind.UIType.Button;
             }
             else if (bind.GetComponent<Toggle>() != null)
             {
-
+                index = (int)UIBind.UIType.Toggle;
             }
             else if (bind.GetComponent<Slider>() != null)
             {
-
+                index = (int)UIBind.UIType.Slider;
             }
             else if (bind.GetComponent<Scrollbar>() != null)
             {
-
+                index = (int)UIBind.UIType.Scrollbar;
             }
             else if (bind.GetComponent<Dropdown>() != null)
             {
-
+                index = (int)UIBind.UIType.Dropdown;
             }
             else if (bind.GetComponent<InputField>() != null)
             {
-
+                index = (int)UIBind.UIType.InputField;
             }
             else if (bind.GetComponent<ScrollRect>() != null)
             {
-
+                index = (int)UIBind.UIType.ScrollView;
             }
             else if (bind.GetComponent<Image>() != null)
             {
-
+                index = (int)UIBind.UIType.Image;
             }
             else if (bind.GetComponent<RawImage>() != null)
             {
-
+                index = (int)UIBind.UIType.RawImage;
             }
             else if (bind.GetComponent<Canvas>() != null)
             {
-
+                index = (int)UIBind.UIType.Canvas;
             }
             else
             {
-                // None
+                index = (int)UIBind.UIType.None;
             }
-
             return index;
         }
     }

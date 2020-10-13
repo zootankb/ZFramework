@@ -9,12 +9,12 @@ namespace ZFramework.UI
     /// </summary>
     public class UIPanelBehaviour : MonoBehaviour
     {
-        #region Mono
-        private void Awake()
-        {
-            OnOpen();
-        }
+        /// <summary>
+        /// ui数据存储
+        /// </summary>
+        protected IUIData mUiData = null;
 
+        #region Mono
         private void OnEnable()
         {
             OnShow();
@@ -22,7 +22,7 @@ namespace ZFramework.UI
 
         private void Start()
         {
-            OnInit(null);
+            OnInit(mUiData);
         }
 
         private void OnDisable()
@@ -38,11 +38,12 @@ namespace ZFramework.UI
 
         #region Virtual
         /// <summary>
-        /// 打开，对应Awake
+        /// 打开，对应UIMgr里面的open
         /// </summary>
-        protected virtual void OnOpen()
+        /// <param name="mUiData"></param>
+        protected virtual void OnOpen(IUIData mUiData = null)
         {
-            // Pass
+            this.mUiData = mUiData;
         }
 
         /// <summary>

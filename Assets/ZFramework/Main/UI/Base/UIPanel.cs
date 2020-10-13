@@ -9,17 +9,24 @@ namespace ZFramework.UI
     /// </summary>
     public class UIPanel : UIPanelBehaviour
     {
-        /// <summary>
-        /// ui数据存储
-        /// </summary>
-        protected IUIData uiData = null;
+        
 
         /// <summary>
-        /// Awake
+        /// 设置UI数据,ui管理器里调用
         /// </summary>
-        protected override void OnOpen()
+        /// <param name="uiData"></param>
+        protected void InitUIData(IUIData mUiData = null)
         {
-            base.OnOpen();
+            this.mUiData = mUiData;
+        }
+
+        /// <summary>
+        /// 对应UIMgr里面的Open
+        /// </summary>
+        /// <param name="mUiData"></param>
+        protected override void OnOpen(IUIData mUiData = null)
+        {
+            base.OnOpen(mUiData);
         }
 
         /// <summary>
@@ -36,7 +43,7 @@ namespace ZFramework.UI
         /// <param name="uiData"></param>
         protected override void OnInit(IUIData uiData)
         {
-            base.OnInit(uiData);
+            base.OnInit(this.mUiData);
         }
 
         /// <summary>

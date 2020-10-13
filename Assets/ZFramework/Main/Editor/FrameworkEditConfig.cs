@@ -276,6 +276,16 @@ namespace ZFramework.ZEditor
             }
             SaveAssetInfo();
         }
+
+        [MenuItem("Assets/生成UI脚本")]
+        public static void CreateUIScript()
+        {
+            GameObject[] gos = Selection.gameObjects;
+            if (gos.Length > 0)
+            {
+                Debug.Log(gos.Length);
+            }
+        }
         #endregion
 
         #region 窗体事件函数

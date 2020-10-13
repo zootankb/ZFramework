@@ -135,7 +135,7 @@ namespace ZFramework.UI
             camGo.transform.SetParent(transform);
             uicamera = camGo.GetComponent<Camera>();
             uicamera.clearFlags = CameraClearFlags.SolidColor;
-            uicamera.backgroundColor = Color.blue;
+            uicamera.backgroundColor = new Color(67f / 255, 67f / 255, 159f / 255);
             uicamera.cullingMask = 1 << 5;  //只渲染UI层    
             uicamera.orthographic = true;
             uicamera.orthographicSize = 5;
