@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using ZFramework.UI;
 
 namespace ZFramework.ZEditor
@@ -38,6 +39,10 @@ namespace ZFramework.ZEditor
             uiType = obj.FindProperty("uiType");
             explain = obj.FindProperty("explain");
             uiname.stringValue = target.name;
+           
+            UIBind bind = obj.targetObject as UIBind;
+            uiType.enumValueIndex = GetUITypeIndex(bind);
+            obj.ApplyModifiedProperties();
         }
 
         public override void OnInspectorGUI()
@@ -49,6 +54,66 @@ namespace ZFramework.ZEditor
             EditorGUILayout.PropertyField(uiType, new GUIContent("UI类型"));
             EditorGUILayout.PropertyField(explain, new GUIContent("UI属性解释"), GUILayout.MaxHeight(50));
             obj.ApplyModifiedProperties();
+        }
+
+        /// <summary>
+        /// 根据物体上的UI类型，返回对应的UI类型枚举
+        /// </summary>
+        /// <param name="bind"></param>
+        /// <returns></returns>
+        private int GetUITypeIndex(UIBind bind)
+        {
+            int index = 0;
+            if(bind.GetComponent<Text>() != null)
+            {
+
+            }
+            else if(bind.GetComponent<Button>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Toggle>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Slider>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Scrollbar>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Dropdown>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<InputField>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<ScrollRect>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Image>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<RawImage>() != null)
+            {
+
+            }
+            else if (bind.GetComponent<Canvas>() != null)
+            {
+
+            }
+            else
+            {
+                // None
+            }
+
+            return index;
         }
     }
 }
