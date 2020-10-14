@@ -603,3 +603,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43bff83c327086643b309b67f366ebb4, type: 3}
+--- !u!1 &1473766552042681556 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1473766550573875281, guid: 43bff83c327086643b309b67f366ebb4,
+    type: 3}
+  m_PrefabInstance: {fileID: 1473766552042681555}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1473766552042681557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473766552042681556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206c2395563087a43b8766d2cf12a61a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiName: TestUIPanel
+  level: 0
+  uiType: 2
+  explain: 

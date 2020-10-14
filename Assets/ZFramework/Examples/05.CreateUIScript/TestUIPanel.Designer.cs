@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using ZFramework.UI;
+﻿using UnityEngine.UI;
 
 namespace ZFramework.TestApp
 {
@@ -31,7 +27,5 @@ namespace ZFramework.TestApp
                 mUiData = value;
             }
         }
-
-        public Button btnOne = null;
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1473766550573875280}
   - component: {fileID: 1473766550573875286}
   - component: {fileID: 1473766550573875287}
+  - component: {fileID: 3005607938628801252}
   m_Layer: 5
   m_Name: TestUIPanel
   m_TagString: Untagged
@@ -75,6 +76,23 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &3005607938628801252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473766550573875281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206c2395563087a43b8766d2cf12a61a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiName: TestUIPanel
+  level: 0
+  uiType: 2
+  explain: 
+  componentGeneratePath: 
 --- !u!1 &6231965398034782216
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,6 +104,7 @@ GameObject:
   - component: {fileID: 7830402339866330851}
   - component: {fileID: 7623413919367739512}
   - component: {fileID: 1935351915535152182}
+  - component: {fileID: 7546373296738143084}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -149,3 +168,20 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &7546373296738143084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6231965398034782216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206c2395563087a43b8766d2cf12a61a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiName: Image
+  level: 0
+  uiType: 2
+  explain: 
+  componentGeneratePath: 

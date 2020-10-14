@@ -12,7 +12,7 @@ public class TestAssetDataLoad : MonoBehaviour
 
     void Start()
     {
-        GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-        Instantiate(go, canvas);
+        //GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        //Instantiate(go, canvas);
     }
 }

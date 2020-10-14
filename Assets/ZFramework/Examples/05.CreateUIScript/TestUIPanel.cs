@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using ZFramework.UI;
+﻿using ZFramework.UI;
 
 namespace ZFramework.TestApp
 {
     /// <summary>
-    /// UI数据
+    /// UI的数据传输结构
     /// </summary>
     public class TestUIPanelDatta : UIPanelData
     {
-
+        // TODO
     }
 
     /// <summary>
@@ -18,22 +15,15 @@ namespace ZFramework.TestApp
     /// </summary>
     public partial class TestUIPanel : UIPanel
     {
+        protected override void SendMsg(int eventId, ZMsg msg)
+        {
+            base.SendMsg(eventId, msg);
+        }
+
         protected override void OnInit(IUIData uiData)
         {
             mData = uiData as TestUIPanelDatta ?? new TestUIPanelDatta();
-
-            if (btnOne == null)
-            {
-                print("属性btnOne存在");
-            }
-            if(mData == null)
-            {
-                print("属性mData存在");
-            }
-            if(mUiData == null)
-            {
-                print("属性mUiData存在");
-            }
+            // TODO
         }
 
         protected override void OnShow()
