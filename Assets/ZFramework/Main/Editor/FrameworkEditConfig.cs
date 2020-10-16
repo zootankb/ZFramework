@@ -24,7 +24,7 @@ namespace ZFramework.ZEditor
         /// <summary>
         /// 配置文件的内容
         /// </summary>
-        private ConfigContent config = null;
+        private static ConfigContent config = null;
 
         /// <summary>
         /// 操作页
@@ -283,11 +283,28 @@ namespace ZFramework.ZEditor
             GameObject[] gos = Selection.gameObjects;
             if (gos.Length > 0)
             {
+                ConfigContent cfgcont = null;
+                if (File.Exists(ZFramework.ConfigContent.CONFIG_FILE_PATH))
+                {
+                    string json = ZFramework.ConfigContent.CONFIG_FILE_PATH.GetTextAssetContentStr();
+                    cfgcont = json.ToNewtonObjectT<ConfigContent>();
+                }
+                else
+                {
+                    cfgcont = new ConfigContent();
+                }
                 List<GameObject> acGos = gos.Where(go => go.GetComponent<RectTransform>() != null).ToList();
                 for (int i = 0; i < acGos.Count; i++)
                 {
-                    // 测试
-                    UI.UIBind.GetFieldNameAndType(acGos[i]);
+                    string uiName = acGos[i].name;
+                    string namespaceName = cfgcont.FrameworkNamespace;
+                    string pathDir = cfgcont.UIScriptPath;
+                    Dictionary<UI.UIBind.UILevel, Dictionary<string, string>> fields = UI.UIBind.GetFieldNameAndType(acGos[i]);
+                    CreateMonoScript.CreateUIPanelScript(uiName, fields[UI.UIBind.UILevel.UI], fields[UI.UIBind.UILevel.UIElement],
+                        cfgcont.FrameworkNamespace, string.Format("{0}/{1}", Application.dataPath, cfgcont.UIScriptPath));
+                    AssetDatabase.Refresh();
+                    // 创建好脚本之后就要给物体添加好创建的脚本，并把各种属性自动赋值到创建好的脚本属性中
+                    // TODO
                 }
             }
         }

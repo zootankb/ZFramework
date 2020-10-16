@@ -109,7 +109,7 @@ namespace ZFramework.ZEditor
             }
             else
             {
-                index = (int)UIBind.UIType.None;
+                index = (int)UIBind.UIType.GameObject;
             }
             return index;
         }

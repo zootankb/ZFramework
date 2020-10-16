@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEditor;
+using System.Linq;
 
 namespace ZFramework.ZEditor
 {
@@ -34,15 +35,60 @@ namespace ZFramework.ZEditor
         }
 
         /// <summary>
-        /// 创建UI脚本
+        /// 创建UI脚本，包括里面的子自定义对象
         /// </summary>
         /// <param name="uiName">UI的脚本名字</param>
-        /// <param name="filedNameAndType">UI的属性名字和类型</param>
+        /// <param name="fieldsOri">很多原生UI的属性名字和类型字符串</param>
+        /// <param name="fieldsDIY">很多自定义UI组件的属性名字和类型字符串</param>
         /// <param name="namespaceName">命名空间</param>
         /// <param name="savePathDir">保存文件的文件夹</param>
-        public static void CreateUIPanelScript(string uiName, Dictionary<string, string> filedNameAndType, string namespaceName, string savePathDir)
+        public static void CreateUIPanelScript(string uiName, Dictionary<string, string> fieldsOri,Dictionary<string,string> fieldsDIY, string namespaceName, string savePathDir)
         {
-
+            string uiFieldStr = string.Empty;
+            if(fieldsOri!=null && fieldsOri.Count > 0)
+            {
+                uiFieldStr = string.Join("\r\n", fieldsOri.Select(kvp => string.Format("\t\tpublic {0} {1};", kvp.Value, kvp.Key)));
+            }
+            if(fieldsDIY != null && fieldsDIY.Count > 0)
+            {
+                uiFieldStr += "\r\n" + string.Join("\r\n", fieldsDIY.Select(kvp => string.Format("\t\tpublic {0}ElementPanel {1};", kvp.Value, kvp.Key)));
+            }
+            string uiPath = string.Format("{0}/{1}.cs", savePathDir, uiName);
+            string uiDesignerPath = string.Format("{0}/{1}.Designer.cs", savePathDir, uiName);
+            string uiContentStr = ScriptContentModel.UIScriptModel.
+                Replace("{namespaceName}", namespaceName).
+                Replace("{uiName}", uiName);
+            string uiDesignerContentStr = ScriptContentModel.UIDesignerScriptModel.
+                Replace("{namespaceName}", namespaceName).
+                Replace("{uiName}", uiName).
+                Replace("{field}", uiFieldStr);
+            // 能修改UI的属性
+            uiDesignerPath.WriteTextAssetContentStr(uiDesignerContentStr);
+            if (!File.Exists(uiPath))
+            {
+                // 不修改UI的逻辑
+                uiPath.WriteTextAssetContentStr(uiContentStr);
+            }
+            foreach (var kvp in fieldsDIY)
+            {
+                string eleUIPath = string.Format("{0}/{1}ElementPanel/{2}ElementPanel.cs", savePathDir, kvp.Value, kvp.Value);
+                string eleUIDesignerPath = string.Format("{0}/{1}ElementPanel/{2}ElementPanel.Designer.cs", savePathDir, kvp.Value, kvp.Value);
+                string eleUIContent = ScriptContentModel.UIElementScriptModel.
+                    Replace("{namespaceName}", namespaceName).
+                    Replace("{uiName}", uiName).
+                    Replace("{uielementName}", kvp.Value);
+                string eleUIDesignerContent = ScriptContentModel.UIElementDesignerScriptModel.
+                    Replace("{namespaceName}", namespaceName).
+                    Replace("{uiName}", uiName).
+                    Replace("{uielementName}", kvp.Value);
+                string.Format("{0}/{1}ElementPanel", savePathDir, kvp.Value).CheckOrCreateDir();
+                eleUIDesignerPath.WriteTextAssetContentStr(eleUIDesignerContent);
+                if (!File.Exists(eleUIPath))
+                {
+                    eleUIPath.WriteTextAssetContentStr(eleUIContent);
+                }
+            }
+            Debug.LogFormat("--------Succeed Create {0}'s Scripts!!--------", uiName);
         }
         /// <summary>
         /// 脚本模板类
@@ -151,7 +197,7 @@ using UnityEngine.UI;
 namespace {namespaceName}
 {
     /// <summary>
-    /// {uiName}Panel的子对象UI脚本{uielementName}ElementPanel
+    /// {uiName}的子对象UI脚本{uielementName}ElementPanel，此组件里面没有自动生成的属性，需要手动在Designer脚本中创建
     /// </summary>
     public partial class {uielementName}ElementPanel : UIElement
     {
@@ -180,8 +226,6 @@ namespace {namespaceName}
     /// </summary>
     public partial class {uielementName}ElementPanel
     {
-{field}
-
         protected override string ComponentName
         {
             get { return this.GetType().Name; }
