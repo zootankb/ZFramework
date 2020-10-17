@@ -50,7 +50,14 @@ namespace ZFramework.ZEditor
             obj.Update();
             EditorGUILayout.PropertyField(uiname, new GUIContent("UI物体属性名字"));
             EditorGUILayout.PropertyField(level, new GUIContent("UI级别"));
-            EditorGUILayout.PropertyField(uiType, new GUIContent("UI类型"));
+            if(level.enumValueIndex == (int)UI.UIBind.UILevel.UI)
+            {
+                EditorGUILayout.PropertyField(uiType, new GUIContent("UI类型"));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("子UI脚本名字", string.Format("{0}ElementPanel", uiname.stringValue));
+            }
             EditorGUILayout.PropertyField(explain, new GUIContent("UI属性解释"), GUILayout.MaxHeight(50));
             obj.ApplyModifiedProperties();
         }

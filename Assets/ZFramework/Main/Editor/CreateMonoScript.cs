@@ -100,8 +100,9 @@ namespace ZFramework.ZEditor
             /// </summary>
             public static string AssetScriptModel ="namespace {0}\r\n{\r\n\tpublic static class {1}\r\n\t{\r\n{2}\r\n\t}\r\n}";
 
+
             /// <summary>
-            /// UI逻辑控制代码
+            /// UI对象脚本
             /// </summary>
             public static string UIScriptModel =
 @"using ZFramework.UI;
@@ -150,10 +151,11 @@ namespace {namespaceName}
 }";
 
             /// <summary>
-            /// UI数据代码
+            /// UI对象脚本设计
             /// </summary>
             public static string UIDesignerScriptModel =
 @"using UnityEngine.UI;
+using UnityEngine;
 
 namespace {namespaceName}
 {

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2002154978832141992}
   - component: {fileID: 2002154978832141998}
   - component: {fileID: 2002154978832141999}
+  - component: {fileID: 6972219954493066911}
   m_Layer: 5
   m_Name: TestOneUIPanel
   m_TagString: Untagged
@@ -31,6 +32,7 @@ RectTransform:
   m_Children:
   - {fileID: 7138740829237020699}
   - {fileID: 1056088437224556194}
+  - {fileID: 656840664990275964}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -76,6 +78,21 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &6972219954493066911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002154978832141993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e726a8ffd289f42850c5b7865adb24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Image: {fileID: 1540525564686170830}
+  TestGo: {fileID: 6124574543495350648}
+  ImgItem: {fileID: 9040700292369998683}
 --- !u!1 &5367832603934901708
 GameObject:
   m_ObjectHideFlags: 0
@@ -88,6 +105,7 @@ GameObject:
   - component: {fileID: 2348220562291121491}
   - component: {fileID: 4927351939323181443}
   - component: {fileID: 536225461298303045}
+  - component: {fileID: 9040700292369998683}
   m_Layer: 5
   m_Name: ImgItem
   m_TagString: Untagged
@@ -166,6 +184,70 @@ MonoBehaviour:
   uiName: ImgItem
   level: 1
   uiType: 2
+  explain: 
+--- !u!114 &9040700292369998683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5367832603934901708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ff382d2d543ac74faf167edf2032bd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &6124574543495350648
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 656840664990275964}
+  - component: {fileID: 7426413629867991475}
+  m_Layer: 5
+  m_Name: TestGo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &656840664990275964
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6124574543495350648}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2002154978832141992}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7426413629867991475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6124574543495350648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206c2395563087a43b8766d2cf12a61a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiName: TestGo
+  level: 0
+  uiType: 0
   explain: 
 --- !u!1 &6469042650438522608
 GameObject:

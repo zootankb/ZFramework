@@ -7,6 +7,7 @@ using System.IO;
 using System;
 using System.Linq;
 using System.Data;
+using System.Reflection;
 
 namespace ZFramework.ZEditor
 {
@@ -303,8 +304,7 @@ namespace ZFramework.ZEditor
                     CreateMonoScript.CreateUIPanelScript(uiName, fields[UI.UIBind.UILevel.UI], fields[UI.UIBind.UILevel.UIElement],
                         cfgcont.FrameworkNamespace, string.Format("{0}/{1}", Application.dataPath, cfgcont.UIScriptPath));
                     AssetDatabase.Refresh();
-                    // 创建好脚本之后就要给物体添加好创建的脚本，并把各种属性自动赋值到创建好的脚本属性中
-                    // TODO
+                    BoundUIBindField.Bound(acGos[i], fields);
                 }
             }
         }

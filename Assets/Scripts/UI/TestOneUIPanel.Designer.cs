@@ -1,4 +1,5 @@
 using UnityEngine.UI;
+using UnityEngine;
 
 namespace ZFramework.App
 {
@@ -29,6 +30,7 @@ namespace ZFramework.App
         }
 
 		public Image Image;
+		public GameObject TestGo;
 		public ImgItemElementPanel ImgItem;
     }
 }
