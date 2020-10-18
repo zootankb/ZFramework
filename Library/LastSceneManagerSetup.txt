@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ZFramework/Examples/06.UIMgrOpen/UIMgrOpen.unity
+- path: Assets/ZFramework/Examples/07.TestAssetbundleManifest/TestAssetbundleManifest.unity
   isLoaded: 1
   isActive: 1

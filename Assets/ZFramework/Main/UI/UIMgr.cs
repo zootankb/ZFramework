@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using ZFramework.ClassExt;
 using ZFramework.Log;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -218,20 +219,16 @@ namespace ZFramework.UI
                 // 直接加载Prefab
                 string uiPrefabPath = string.Format("Assets/{0}/{1}.prefab", ConfigContent.configPath.UIPrePath, abName);
                 prefab = AssetDatabase.LoadAssetAtPath<GameObject>(uiPrefabPath);
-#elif UNITY_STANDALONE_WIN
-                string uiPrefabPath = string.Format("{0}/{1}/Windows/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
-                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
-                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
-                prefab = ab.LoadAsset<GameObject>(assetName);
-                ab.Unload(false);
-#elif UNITY_ANDROID
-                string uiPrefabPath = string.Format("{0}/{1}/Andriod/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
-                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
-                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
-                prefab = ab.LoadAsset<GameObject>(assetName);
-                ab.Unload(false);
-#elif UNITY_IPHONE
-                string uiPrefabPath = string.Format("{0}/{1}/IOS/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
+#else
+                // 先查看 Application.persistentDataPath 下面有没有ab包，有的话就先使用 Application.persistentDataPath 下面的，
+                // 这样就保证使用最新更改过的原UI资源和打包进ab包里面的原最新UI脚本，如果是新添加的资源就不行了，就需要更新主程序
+                string uiPrefabPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
+                string persPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.persistentDataPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
+                if (File.Exists(persPath))
+                {
+                    // 保证使用最新UI资源
+                    uiPrefabPath = persPath;
+                }
                 byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
                 AssetBundle ab = AssetBundle.LoadFromMemory(bs);
                 prefab = ab.LoadAsset<GameObject>(assetName);

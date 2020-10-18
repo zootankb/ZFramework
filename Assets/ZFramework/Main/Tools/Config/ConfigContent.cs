@@ -31,6 +31,10 @@ namespace ZFramework
         /// </summary>
         public readonly static ConfigURL configURL = null;
 
+        /// <summary>
+        /// 框架支持的全部平台
+        /// </summary>
+        public readonly static string[] platforms = new string[] { "Windows", "Andriod", "IOS" };
 
         static ConfigContent()
         {
@@ -54,5 +58,25 @@ namespace ZFramework
             }
         }
 
+        /// <summary>
+        /// 当前运行的平台,默认为windows开发平台
+        /// </summary>
+        public static string CurrPlatform
+        {
+            get
+            {
+                string platform = null;
+#if UNITY_EDITOR
+                platform = platforms[0];
+#elif UNITY_STANDALONE_WIN
+                platform = platforms[0];
+#elif UNITY_ANDROID
+                platform = platforms[1];
+#elif UNITY_IPHONE
+                platform = platforms[2];
+#endif
+                return platform;
+            }
+        }
     }
 }

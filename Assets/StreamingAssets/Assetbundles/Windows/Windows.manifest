@@ -1,7 +1,22 @@
 ManifestFileVersion: 0
-CRC: 3019154766
+CRC: 3694055516
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: testoneuipanel.ab
+      Name: capsule.ab
+      Dependencies: {}
+    Info_1:
+      Name: cube.ab
+      Dependencies: {}
+    Info_2:
+      Name: sphere.ab
+      Dependencies: {}
+    Info_3:
+      Name: cylinder.ab
+      Dependencies: {}
+    Info_4:
+      Name: plane.ab
+      Dependencies: {}
+    Info_5:
+      Name: quad.ab
       Dependencies: {}

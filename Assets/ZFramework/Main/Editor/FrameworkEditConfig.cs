@@ -185,11 +185,6 @@ namespace ZFramework.ZEditor
         private Vector2 abAssetScvPos = Vector2.zero;
 
         /// <summary>
-        /// 打包所选择的平台
-        /// </summary>
-        private string[] assetPlatforms = new string[] { "Windows", "Android", "IOS" };
-
-        /// <summary>
         /// 打包的方式，一对一打包还是多对一打包
         /// </summary>
         private string[] assetBuildType = new string[] { "一对一打包", "多对一打包" };
@@ -956,7 +951,7 @@ namespace ZFramework.ZEditor
 
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Space(50);
-                    selectBuildPlatformIndex = EditorGUILayout.Popup(selectBuildPlatformIndex, assetPlatforms);
+                    selectBuildPlatformIndex = EditorGUILayout.Popup(selectBuildPlatformIndex, ConfigContent.platforms);
                     selectBuildAbOption = EditorGUILayout.Popup(selectBuildAbOption, Enum.GetNames(typeof(BuildAssetBundleOptions)));
                     selectBuildType = EditorGUILayout.Popup(selectBuildType, assetBuildType);
                     if (GUILayout.Button("选择性打包"))
@@ -964,8 +959,8 @@ namespace ZFramework.ZEditor
                         List<SelectAssetInfo> slct = selectAssetDic.Where(kv => kv.Value.selected).Select(t => t.Value).ToList();
                         if (slct.Count > 0)
                         {
-                            string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
-                            string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                            string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, ConfigContent.platforms[selectBuildPlatformIndex]);
+                            string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, ConfigContent.platforms[selectBuildPlatformIndex]);
                             dir.CheckOrCreateDir();
                             string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
                             BuildAssetBundleOptions option = (BuildAssetBundleOptions)Enum.Parse(typeof(BuildAssetBundleOptions), optionName);
@@ -990,8 +985,8 @@ namespace ZFramework.ZEditor
                     }
                     if (GUILayout.Button("直接标签打包"))
                     {
-                        string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
-                        string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                        string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, ConfigContent.platforms[selectBuildPlatformIndex]);
+                        string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, ConfigContent.platforms[selectBuildPlatformIndex]);
                         dir.CheckOrCreateDir();
                         string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
                         BuildAssetBundleOptions option = (BuildAssetBundleOptions)Enum.Parse(typeof(BuildAssetBundleOptions), optionName);
@@ -1023,11 +1018,11 @@ namespace ZFramework.ZEditor
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
                 GUILayout.Label("平台AB包：");
-                currSelectAbPlatformIndex = GUILayout.Toolbar(currSelectAbPlatformIndex, assetPlatforms);
+                currSelectAbPlatformIndex = GUILayout.Toolbar(currSelectAbPlatformIndex, ConfigContent.platforms);
                 if(currSelectAbPlatformIndex!= oriSelectAbPlatformIndex)
                 {
                     oriSelectAbPlatformIndex = currSelectAbPlatformIndex;
-                    string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                    string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, ConfigContent.platforms[currSelectAbPlatformIndex]);
                     RefreshAbInfos(dir);
                 }
                 if (abInfos.Count > 0)
@@ -1056,7 +1051,7 @@ namespace ZFramework.ZEditor
                         }
                         if (GUILayout.Button("删除", GUILayout.MaxWidth(50)))
                         {
-                            string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                            string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, ConfigContent.platforms[currSelectAbPlatformIndex]);
                             string filePath = string.Format("{0}/{1}", path, abInfos[i].assetbundleName);
                             DeleteAbOrMetaFile(filePath);
                             DeleteAssetInfo(new List<SelectAssetInfo>() { abInfos[i] });
@@ -1081,7 +1076,7 @@ namespace ZFramework.ZEditor
                     if (GUILayout.Button("删除所选", EditorStyles.miniButtonMid))
                     {
                         List<SelectAssetInfo> slct = abInfos.Where(p => p.selected).ToList();
-                        string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                        string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, ConfigContent.platforms[currSelectAbPlatformIndex]);
                         foreach (var item in slct)
                         {
                             string filePath = string.Format("{0}/{1}", path, item.assetbundleName);
@@ -1092,14 +1087,14 @@ namespace ZFramework.ZEditor
                     GUILayout.Space(3);
                     if (GUILayout.Button("打开资源浏览器", EditorStyles.miniButtonMid))
                     {
-                        string path = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets",string.Empty), config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                        string path = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets",string.Empty), config.AssetbundlePath, ConfigContent.platforms[currSelectAbPlatformIndex]);
                         if (Directory.Exists(path))
                         {
                             EditorUtility.RevealInFinder(path);
                         }
                         else
                         {
-                            ShowNotification(new GUIContent("目标文件夹 " + assetPlatforms[currSelectAbPlatformIndex] + " 不存在！"));
+                            ShowNotification(new GUIContent("目标文件夹 " + ConfigContent.platforms[currSelectAbPlatformIndex] + " 不存在！"));
                         }
                     }
                     GUILayout.Space(3);
@@ -1411,6 +1406,11 @@ namespace ZFramework.ZEditor
             /// 打的ab包所存放的路径
             /// </summary>
             public string AssetbundlePath = "Assetbundles";
+
+            /// <summary>
+            /// 框架支持的全部平台
+            /// </summary>
+            public readonly static string[] platforms = new string[] { "Windows", "Andriod", "IOS" };
         }
 
         #endregion

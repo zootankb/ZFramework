@@ -10,7 +10,7 @@ using ZFramework.ClassExt;
 namespace ZFramework.Res
 {
     /// <summary>
-    /// 搭配的资源管理类
+    /// 搭配的资源管理类(主要下载一般的资源，AB包的更新与使用在另一个脚本里面)
     /// 1.先查找内存里是否有对应资源
     /// 2.再查找数据库
     ///     1.若数据库里面有，就检查本地是否有文件
@@ -22,7 +22,7 @@ namespace ZFramework.Res
     public static class NetResMgr
     {
 
-        #region 资源的检查、本地数据的更新、数据的发送、接受和处理
+        #region 资源的检查、数据的发送、接受和处理
         /// <summary>
         /// 二进制数据流的下载，由于二进制流不知道是什么文件类型，不做本地存储
         /// </summary>
