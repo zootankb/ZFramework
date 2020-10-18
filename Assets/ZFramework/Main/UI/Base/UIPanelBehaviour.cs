@@ -10,11 +10,42 @@ namespace ZFramework.UI
     public class UIPanelBehaviour : MonoBehaviour
     {
         /// <summary>
+        /// UI内部间全局通用消息传输中枢
+        /// </summary>
+        private static UIMsgCenter uiMsgCenter = UIMsgCenter.Allocate(typeof(UIPanelBehaviour).Name);
+
+        /// <summary>
+        /// 初始ui事件id
+        /// </summary>
+        private int mUIEventId = int.MinValue;
+
+        /// <summary>
+        /// UI的专属事件ID，为gameObject.GetHashCode(),全部为负值
+        /// </summary>
+        protected int uiEventId
+        {
+            get
+            {
+                if(mUIEventId == int.MinValue)
+                {
+                    mUIEventId = gameObject.GetHashCode();
+                }
+                return mUIEventId;
+            }
+        }
+
+
+        /// <summary>
         /// ui数据存储
         /// </summary>
         protected IUIData mUiData = null;
 
         #region Mono
+        private void Awake()
+        {
+            uiMsgCenter.Register(uiEventId, ProcessMsg);
+        }
+
         private void OnEnable()
         {
             OnShow();
@@ -33,6 +64,7 @@ namespace ZFramework.UI
         private void OnDestroy()
         {
             OnBeforeDestroy();
+            uiMsgCenter.Unregister(uiEventId, ProcessMsg);
         }
         #endregion
 
@@ -41,7 +73,7 @@ namespace ZFramework.UI
         /// 打开，对应UIMgr里面的open
         /// </summary>
         /// <param name="mUiData"></param>
-        protected virtual void OnOpen(IUIData mUiData = null)
+        public virtual void OnOpen(IUIData mUiData = null)
         {
             this.mUiData = mUiData;
         }
@@ -98,7 +130,6 @@ namespace ZFramework.UI
         {
             // Pass
         }
-
         #endregion
     }
 }

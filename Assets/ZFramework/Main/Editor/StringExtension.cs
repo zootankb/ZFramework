@@ -18,6 +18,26 @@ namespace ZFramework.ZEditor
         private static readonly object _locker = new object();
 
         /// <summary>
+        /// 把文件夹里面的所有东西拷贝到tarDir里面
+        /// </summary>
+        /// <param name="oriDir"></param>
+        /// <param name="tarDir"></param>
+        public static void CopyDirChildrenToDir(this string oriDir, string tarDir)
+        {
+            if (Directory.Exists(oriDir))
+            {
+                tarDir.CheckOrCreateDir();
+                string[] fs = Directory.GetFiles(oriDir);
+                foreach (var f in fs)
+                {
+                    string tarPath = string.Format("{0}/{1}", tarDir, Path.GetFileName(f));
+                    byte[] bs = f.GetTextAssetContentByteArr();
+                    tarPath.WriteTextAssetContentByteArray(bs);
+                }
+            }
+        }
+
+        /// <summary>
         /// 把字符串反序列化成指定类型T
         /// </summary>
         /// <typeparam name="T"></typeparam>

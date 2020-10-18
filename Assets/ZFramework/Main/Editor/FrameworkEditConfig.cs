@@ -187,7 +187,7 @@ namespace ZFramework.ZEditor
         /// <summary>
         /// 打包所选择的平台
         /// </summary>
-        private string[] assetPlatforms = new string[] { "PC", "Android", "IOS" };
+        private string[] assetPlatforms = new string[] { "Windows", "Android", "IOS" };
 
         /// <summary>
         /// 打包的方式，一对一打包还是多对一打包
@@ -236,11 +236,6 @@ namespace ZFramework.ZEditor
         #endregion
 
         #region Data UI操作
-
-       private bool testOne =  false;
-       private bool testTwo =  false;
-        private bool testThr = false;
-
 
         #endregion
 
@@ -456,56 +451,7 @@ namespace ZFramework.ZEditor
                 EditorGUILayout.EndHorizontal();
                 #endregion
 
-                #region UI预制体操作
-                EditorGUILayout.Space();
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("路径下的UI物体：");
-                float uiScvHeight = uiPrefabInfos.Count < 25 ? uiPrefabInfos.Count * 20 : 500;
-                uiScrollviewPos = EditorGUILayout.BeginScrollView(uiScrollviewPos, GUILayout.MaxHeight(uiScvHeight));
-                for (int i = 0; i < uiPrefabInfos.Count; i++)
-                {
-                    uiPrefabInfos[i].selected = EditorGUILayout.ToggleLeft(uiPrefabInfos[i].filename, uiPrefabInfos[i].selected, EditorStyles.boldLabel);
-                }
-                EditorGUILayout.EndScrollView();
-
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("刷新预制体信息"))
-                {
-                    InitUIInfos();
-                }
-                if (GUILayout.Button("全部选中"))
-                {
-                    for (int i = 0; i < uiPrefabInfos.Count; i++)
-                    {
-                        uiPrefabInfos[i].selected = true;
-                    }
-                }
-                if (GUILayout.Button("全部不选"))
-                {
-                    for (int i = 0; i < uiPrefabInfos.Count; i++)
-                    {
-                        uiPrefabInfos[i].selected = false;
-                    }
-                }
-                if (GUILayout.Button("删除选中预制体"))
-                {
-                    List<AssetFileInfo> tmp = new List<AssetFileInfo>();
-                    for (int i = 0; i < uiPrefabInfos.Count; i++)
-                    {
-                        if (uiPrefabInfos[i].selected)
-                        {
-                            DeleteAbOrMetaFile(uiPrefabInfos[i].fileAbsPath);
-                        }
-                        else
-                        {
-                            tmp.Add(uiPrefabInfos[i]);
-                        }
-                    }
-                    uiPrefabInfos = tmp;
-                    AssetDatabase.Refresh();
-                }
-                EditorGUILayout.EndHorizontal();
-                #endregion
+               
 
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
@@ -1018,6 +964,7 @@ namespace ZFramework.ZEditor
                         List<SelectAssetInfo> slct = selectAssetDic.Where(kv => kv.Value.selected).Select(t => t.Value).ToList();
                         if (slct.Count > 0)
                         {
+                            string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
                             string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
                             dir.CheckOrCreateDir();
                             string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
@@ -1036,12 +983,15 @@ namespace ZFramework.ZEditor
                                     break;
                             }
                             ABOperator.BuildAssetBundle(selectBuildType, slct, dir, option, target);
+                            dir.CopyDirChildrenToDir(asDir);
                             RefreshAbInfos(dir);
+                            AssetDatabase.Refresh();
                         }
                     }
                     if (GUILayout.Button("直接标签打包"))
                     {
-                        string dir = string.Format("{0}/{1}/{2}", Application.dataPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                        string asDir = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
+                        string dir = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets", string.Empty), config.AssetbundlePath, assetPlatforms[selectBuildPlatformIndex]);
                         dir.CheckOrCreateDir();
                         string optionName = Enum.GetNames(typeof(BuildAssetBundleOptions))[selectBuildAbOption];
                         BuildAssetBundleOptions option = (BuildAssetBundleOptions)Enum.Parse(typeof(BuildAssetBundleOptions), optionName);
@@ -1059,7 +1009,9 @@ namespace ZFramework.ZEditor
                                 break;
                         }
                         ABOperator.BuildAssetbundleWithTag(dir, option, target);
+                        dir.CopyDirChildrenToDir(asDir);
                         RefreshAbInfos(dir);
+                        AssetDatabase.Refresh();
                     }
                     GUILayout.Space(50);
                     EditorGUILayout.EndHorizontal();
@@ -1104,6 +1056,9 @@ namespace ZFramework.ZEditor
                         }
                         if (GUILayout.Button("删除", GUILayout.MaxWidth(50)))
                         {
+                            string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                            string filePath = string.Format("{0}/{1}", path, abInfos[i].assetbundleName);
+                            DeleteAbOrMetaFile(filePath);
                             DeleteAssetInfo(new List<SelectAssetInfo>() { abInfos[i] });
                         }
                         EditorGUILayout.EndHorizontal();
@@ -1126,6 +1081,12 @@ namespace ZFramework.ZEditor
                     if (GUILayout.Button("删除所选", EditorStyles.miniButtonMid))
                     {
                         List<SelectAssetInfo> slct = abInfos.Where(p => p.selected).ToList();
+                        string path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, config.AssetbundlePath, assetPlatforms[currSelectAbPlatformIndex]);
+                        foreach (var item in slct)
+                        {
+                            string filePath = string.Format("{0}/{1}", path, item.assetbundleName);
+                            DeleteAbOrMetaFile(filePath);
+                        }
                         DeleteAssetInfo(slct);
                     }
                     GUILayout.Space(3);
@@ -1157,15 +1118,62 @@ namespace ZFramework.ZEditor
                     ShowNotification(new GUIContent("没有ab包信息"));
                 }
             }
-            // 测试
+            // UI
             else if (selectedOption == 3)
             {
-                //      复选框
+                #region UI预制体操作
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField(config.UIPrePath + " 路径下的UI物体：", EditorStyles.boldLabel);
+                float uiScvHeight = uiPrefabInfos.Count < 25 ? uiPrefabInfos.Count * 20 : 500;
+                uiScrollviewPos = EditorGUILayout.BeginScrollView(uiScrollviewPos, GUILayout.MaxHeight(uiScvHeight));
+                for (int i = 0; i < uiPrefabInfos.Count; i++)
+                {
+                    uiPrefabInfos[i].selected = EditorGUILayout.ToggleLeft(uiPrefabInfos[i].filename, uiPrefabInfos[i].selected);
+                }
+                EditorGUILayout.EndScrollView();
+
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
-                testOne = EditorGUILayout.ToggleLeft("testOne", testOne, EditorStyles.boldLabel);
-                testTwo = EditorGUILayout.ToggleLeft("testTwo", testTwo, EditorStyles.boldLabel);
-                testThr = EditorGUILayout.ToggleLeft("testThr", testThr, EditorStyles.boldLabel);
-                EditorGUILayout.BeginHorizontal();
+                GUILayout.Space(50);
+                if (GUILayout.Button("刷新预制体信息"))
+                {
+                    InitUIInfos();
+                }
+                if (GUILayout.Button("全部选中"))
+                {
+                    for (int i = 0; i < uiPrefabInfos.Count; i++)
+                    {
+                        uiPrefabInfos[i].selected = true;
+                    }
+                }
+                if (GUILayout.Button("全部不选"))
+                {
+                    for (int i = 0; i < uiPrefabInfos.Count; i++)
+                    {
+                        uiPrefabInfos[i].selected = false;
+                    }
+                }
+                if (GUILayout.Button("删除选中预制体"))
+                {
+                    List<AssetFileInfo> tmp = new List<AssetFileInfo>();
+                    for (int i = 0; i < uiPrefabInfos.Count; i++)
+                    {
+                        if (uiPrefabInfos[i].selected)
+                        {
+                            DeleteAbOrMetaFile(uiPrefabInfos[i].fileAbsPath);
+                        }
+                        else
+                        {
+                            tmp.Add(uiPrefabInfos[i]);
+                        }
+                    }
+                    uiPrefabInfos = tmp;
+                    AssetDatabase.Refresh();
+                }
+                GUILayout.Space(50);
+                EditorGUILayout.EndHorizontal();
+                #endregion
 
             }
         }
@@ -1195,7 +1203,8 @@ namespace ZFramework.ZEditor
             {
                 for (int i = 0; i < ainfos.Count; i++)
                 {
-                    DeleteAbOrMetaFile(ainfos[i].assetNames.First());
+                    string filePath = ainfos[i].assetNames.First();
+                    DeleteAbOrMetaFile(filePath);
                     abInfos.Remove(ainfos[i]);
                 }
                 AssetDatabase.Refresh();

@@ -15,9 +15,10 @@ namespace ZFramework.App
     /// </summary>
     public partial class TestOneUIPanel : UIPanel
     {
-        protected override void SendMsg(int eventId, ZMsg msg)
+        // 接收UI间发送的消息，用SendMsg(eventId,msg)发送消息
+        protected override void ProcessMsg(int eventId, ZMsg msg)
         {
-            base.SendMsg(eventId, msg);
+            base.ProcessMsg(eventId, msg);
         }
 
         protected override void OnInit(IUIData uiData)

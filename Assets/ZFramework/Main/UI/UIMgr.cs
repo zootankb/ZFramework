@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using ZFramework.ClassExt;
+using ZFramework.Log;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace ZFramework.UI
 {
@@ -46,7 +52,6 @@ namespace ZFramework.UI
         Forward,
     }
 
-
     /// <summary>
     /// UI管理器
     /// </summary>
@@ -72,6 +77,16 @@ namespace ZFramework.UI
         /// UI的各个层
         /// </summary>
         private Dictionary<UILevel, GameObject> uiLevels = new Dictionary<UILevel, GameObject>();
+
+        /// <summary>
+        /// 存储的UI预制体
+        /// </summary>
+        private Dictionary<string, GameObject> uiPrefabs = new Dictionary<string, GameObject>();
+
+        /// <summary>
+        /// 存储所有打开的UI
+        /// </summary>
+        private Dictionary<string, GameObject> uiGos = new Dictionary<string, GameObject>();
         #endregion
 
         #region Static Data
@@ -134,7 +149,7 @@ namespace ZFramework.UI
             GameObject camGo = new GameObject(UI_CAMERA, typeof(Camera));
             camGo.transform.SetParent(transform);
             uicamera = camGo.GetComponent<Camera>();
-            uicamera.clearFlags = CameraClearFlags.SolidColor;
+            uicamera.clearFlags = CameraClearFlags.Skybox;
             uicamera.backgroundColor = new Color(67f / 255, 67f / 255, 159f / 255);
             uicamera.cullingMask = 1 << 5;  //只渲染UI层    
             uicamera.orthographic = true;
@@ -171,7 +186,7 @@ namespace ZFramework.UI
         }
 
         /// <summary>
-        /// 获取UI物体并返回UI逻辑代码
+        /// 获取UI物体并返回UI逻辑代码，一个UI物体只能打开一次，再打开时就返回已经存在的UI物体
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="uIData"></param>
@@ -181,7 +196,55 @@ namespace ZFramework.UI
         /// <returns></returns>
         private T OpenUI<T>(IUIData uIData = null, UILevel level = UILevel.Common, string assetName = null, string abName = null) where T : UIPanel
         {
-            return null;
+            string prefabName = typeof(T).Name;
+            T t = null;
+            if (uiGos.ContainsKey(prefabName))
+            {
+                LogOperator.AddWarnningRecord(string.Format("UI名字为 {0} 的物体已经存在，请不要重复创建！", prefabName));
+                return null;
+            }
+            GameObject prefab = null;
+            if (string.IsNullOrEmpty(assetName))
+            {
+                assetName = prefabName;
+            }
+            if (string.IsNullOrEmpty(abName))
+            {
+                abName = prefabName;
+            }
+            if (!uiPrefabs.ContainsKey(prefabName))
+            {
+#if UNITY_EDITOR
+                // 直接加载Prefab
+                string uiPrefabPath = string.Format("Assets/{0}/{1}.prefab", ConfigContent.configPath.UIPrePath, abName);
+                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(uiPrefabPath);
+#elif UNITY_STANDALONE_WIN
+                string uiPrefabPath = string.Format("{0}/{1}/Windows/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
+                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
+                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
+                prefab = ab.LoadAsset<GameObject>(assetName);
+                ab.Unload(false);
+#elif UNITY_ANDROID
+                string uiPrefabPath = string.Format("{0}/{1}/Andriod/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
+                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
+                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
+                prefab = ab.LoadAsset<GameObject>(assetName);
+                ab.Unload(false);
+#elif UNITY_IPHONE
+                string uiPrefabPath = string.Format("{0}/{1}/IOS/{2}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, abName);
+                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
+                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
+                prefab = ab.LoadAsset<GameObject>(assetName);
+                ab.Unload(false);
+#endif
+                uiPrefabs.Add(prefabName, prefab);
+            }
+            GameObject go = Instantiate(prefab, GetLevelTransform(level));
+            uiGos.Add(prefabName, go);
+            go.name = abName;
+            t = go.GetComponent<T>();
+            t.OnOpen(uIData);
+            return t;
         }
 
         /// <summary>
@@ -190,7 +253,13 @@ namespace ZFramework.UI
         /// <typeparam name="T"></typeparam>
         private void CloseUI<T>() where T : UIPanel
         {
-            // pass
+            string uiName = typeof(T).Name;
+            if (uiGos.ContainsKey(uiName))
+            {
+                GameObject go = uiGos[uiName];
+                uiGos.Remove(uiName);
+                Destroy(go);
+            }
         }
 
         /// <summary>
@@ -199,7 +268,13 @@ namespace ZFramework.UI
         /// <typeparam name="T"></typeparam>
         private T ＧetUI<T>() where T : UIPanel
         {
-            return null;
+            T t = null;
+            string uiName = typeof(T).Name;
+            if (uiGos.ContainsKey(uiName))
+            {
+                t = uiGos[uiName].GetComponent<T>();
+            }
+            return t;
         }
 
         /// <summary>
@@ -207,18 +282,59 @@ namespace ZFramework.UI
         /// </summary>
         private void CloseAllUI()
         {
-            // pass
+            foreach (var kvp in uiGos)
+            {
+                Destroy(kvp.Value);
+            }
+            uiGos.Clear();
+        }
+
+        /// <summary>
+        /// 获取对应级别物体的transform
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        private Transform GetLevelTransform(UILevel level = UILevel.Common)
+        {
+            return uiLevels[level].transform;
+        }
+
+        /// <summary>
+        /// 释放指定UI的镜像
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private void ReleaseUIPrefab<T>() where T : UIPanel
+        {
+            string uiPrefabName = typeof(T).Name;
+            if (uiPrefabs.ContainsKey(uiPrefabName))
+            {
+                GameObject prefab = uiPrefabs[uiPrefabName];
+                uiPrefabs.Remove(uiPrefabName);
+                DestroyImmediate(prefab);
+            }
+        }
+
+        /// <summary>
+        /// 释放所有的UI资源
+        /// </summary>
+        private void ReleaseAllUIPrefab()
+        {
+            foreach (var kvp in uiPrefabs)
+            {
+                DestroyImmediate(kvp.Value);
+            }
+            uiPrefabs.Clear();
         }
         #endregion
-
+        
         #region IEnum
-
+        
         #endregion
-
+        
         #region Static Func
-
+        
         #endregion
-
+        
         #region API
         /// <summary>
         /// 实例化并创建UI父节点
@@ -269,6 +385,23 @@ namespace ZFramework.UI
         {
             Instance.CloseAllUI();
         }
+
+        /// <summary>
+        /// 释放指定UI的镜像
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void ReleaseUI<T>() where T : UIPanel
+        {
+            Instance.ReleaseUIPrefab<T>();
+        }
+
+        /// <summary>
+        /// 释放所有的UI资源
+        /// </summary>
+        public static void ReleaseAllUI()
+        {
+            Instance.ReleaseAllUIPrefab();
+        }
         #endregion
 
         #region Private Class
@@ -316,6 +449,6 @@ namespace ZFramework.UI
             /// </summary>
             public GameObject uiGo = null;
         }
-        #endregion
+#endregion
     }
 }
