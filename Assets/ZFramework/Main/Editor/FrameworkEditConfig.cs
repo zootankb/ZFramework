@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Data;
 using System.Reflection;
+using ZFramework.UI;
 
 namespace ZFramework.ZEditor
 {
@@ -287,12 +288,53 @@ namespace ZFramework.ZEditor
                 List<GameObject> acGos = gos.Where(go => go.GetComponent<RectTransform>() != null).ToList();
                 for (int i = 0; i < acGos.Count; i++)
                 {
-                    string uiName = acGos[i].name;
-                    string namespaceName = cfgcont.FrameworkNamespace;
-                    string pathDir = cfgcont.UIScriptPath;
-                    Dictionary<UI.UIBind.UILevel, Dictionary<string, string>> fields = UI.UIBind.GetFieldNameAndType(acGos[i]);
-                    CreateMonoScript.CreateUIPanelScript(uiName, fields[UI.UIBind.UILevel.UI], fields[UI.UIBind.UILevel.UIElement],
-                        cfgcont.FrameworkNamespace, string.Format("{0}/{1}", Application.dataPath, cfgcont.UIScriptPath));
+                    Dictionary<string, UIBind> fields = UI.UIBind.GetFieldNameAndType(acGos[i]);
+                    if(fields == null)
+                    {
+                        Debug.LogFormat("UI物体 {0} 内有名字重复的组件！", acGos[i].name);
+                        continue;
+                    }
+                    // 脚本分类，包括主UI（null）和很多子UI（UILevel.Element）
+                    // 把代表主UI的parent为null的bind和代表子UI的parent不为空的bind插进去
+                    List<UIBind> allParents = new List<UIBind>();
+                    allParents.Add(null);
+                    foreach (var item in fields)
+                    {
+                        if(item.Value.level == UIBind.UILevel.UIElement)
+                        {
+                            allParents.Add(item.Value);
+                        }
+                    }
+                    // 主UI的属性数据存储，key为名字，value为类型
+                    Dictionary<string, string> mainUIFields = new Dictionary<string, string>();
+                    // 所有子自定义UI的属性数据存储，外层Dictionary的key为子UI的脚本名字，内层为对应子UI的属性数据存储，key为名字，value为类型
+                    Dictionary<string, Dictionary<string, string>> childsUIFields = new Dictionary<string, Dictionary<string, string>>();
+                    foreach (var parent in allParents)
+                    {
+                        // UI脚本的属性
+                        List<UIBind> childs = null;
+                        // 获取父级为item的子级UI
+                        if (parent == null)
+                        {
+                            // 主UI的属性UIBind
+                            childs = fields.Values.Where(pv => pv.parentBind == null).ToList();
+                            mainUIFields = childs.ToDictionary(p => p.uiName, p =>
+                            {
+                                return p.level == UIBind.UILevel.UI ? p.uiType.ToString() : p.uiName;
+                            });
+                        }
+                        else
+                        {
+                            // 子UI的属性UIBind
+                            childs = fields.Values.Where(pv => pv.parentBind == parent.transform).ToList();
+                            Dictionary<string,string> childFields = childs.ToDictionary(p => p.uiName, p =>
+                            {
+                                return p.level == UIBind.UILevel.UI ? p.uiType.ToString() : p.uiName;
+                            });
+                            childsUIFields.Add(parent.uiName, childFields);
+                        }
+                    }
+                    CreateMonoScript.CreateUIPanelScript(acGos[i].name, mainUIFields, childsUIFields, cfgcont.FrameworkNamespace, string.Format("{0}/{1}", Application.dataPath, cfgcont.UIScriptPath));
                     AssetDatabase.Refresh();
                     BoundUIBindField.Bound(acGos[i], fields);
                 }

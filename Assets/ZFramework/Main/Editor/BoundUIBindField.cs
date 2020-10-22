@@ -20,7 +20,7 @@ namespace ZFramework.ZEditor
         /// </summary>
         /// <param name="go"></param>
         /// <param name="fields">属性信息</param>
-        public static void Bound(GameObject go, Dictionary<UI.UIBind.UILevel, Dictionary<string, string>> fields)
+        public static void Bound(GameObject go, Dictionary<string, UIBind> fields)
         {
             // 创建好脚本之后就要给物体添加好创建的脚本，并把各种属性自动赋值到创建好的脚本属性中
             // 寻找目标脚本类型
@@ -70,7 +70,7 @@ namespace ZFramework.ZEditor
                                 case UIBind.UIType.Dropdown:
                                     tarCom = childs[kvp.Key].GetComponent<Dropdown>();
                                     break;
-                                case UIBind.UIType.GameObject:
+                                case UIBind.UIType.RectTransform:
                                     tarCom = childs[kvp.Key].gameObject;
                                     break;
                                 case UIBind.UIType.Image:

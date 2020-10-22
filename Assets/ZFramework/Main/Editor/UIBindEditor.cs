@@ -12,7 +12,10 @@ namespace ZFramework.ZEditor
     public class UIBindEditor : UnityEditor.Editor
     {
         //序列化
-        private UnityEditor.SerializedObject obj;
+        private 
+                
+                
+                            SerializedObject obj;
 
         //定义变量
         /// <summary>
@@ -31,6 +34,10 @@ namespace ZFramework.ZEditor
         /// 属性解释
         /// </summary>
         private SerializedProperty explain;
+        /// <summary>
+        /// 父级物体
+        /// </summary>
+        private SerializedProperty parent;
 
         private void OnEnable()
         {
@@ -39,8 +46,11 @@ namespace ZFramework.ZEditor
             level = obj.FindProperty("level");
             uiType = obj.FindProperty("uiType");
             explain = obj.FindProperty("explain");
+            parent = obj.FindProperty("parentBind");
+            UIBind bind = obj.targetObject as UIBind;
             uiname.stringValue = target.name;
-            uiType.enumValueIndex = GetUITypeIndex(obj.targetObject as UIBind);
+            uiType.enumValueIndex = GetUITypeIndex(bind);
+            parent.objectReferenceValue = parent.objectReferenceValue ?? GetUIBindParentTransform(bind);
             obj.ApplyModifiedProperties();
         }
 
@@ -56,10 +66,35 @@ namespace ZFramework.ZEditor
             }
             else
             {
-                EditorGUILayout.LabelField("子UI脚本名字", string.Format("{0}ElementPanel", uiname.stringValue));
+                EditorGUILayout.LabelField("子UI脚本名字", uiname.stringValue);
+            }
+            if (parent.objectReferenceValue != null)
+            {
+                EditorGUILayout.ObjectField(new GUIContent("直接UIBind父级"), parent.objectReferenceValue, typeof(Transform), true);
             }
             EditorGUILayout.PropertyField(explain, new GUIContent("UI属性解释"), GUILayout.MaxHeight(50));
             obj.ApplyModifiedProperties();
+        }
+
+        /// <summary>
+        /// 获取含有父级的Transform
+        /// </summary>
+        /// <param name="bind"></param>
+        /// <returns></returns>
+        private Transform GetUIBindParentTransform(UIBind bind)
+        {
+            Transform trans = bind.transform.parent;
+            while (trans != null)
+            {
+                UIBind b = trans.GetComponent<UIBind>();
+                if (b != null && b.level == UIBind.UILevel.UIElement)
+                {
+                    // 找出父级物体中离bind最近的一个UIBind
+                    return b.transform;
+                }
+                trans = trans.parent;
+            }
+            return null;
         }
 
         /// <summary>
@@ -113,6 +148,14 @@ namespace ZFramework.ZEditor
             else if (bind.GetComponent<Canvas>() != null)
             {
                 index = (int)UIBind.UIType.Canvas;
+            }
+            else if (bind.GetComponent<RectTransform>() != null)
+            {
+                index = (int)UIBind.UIType.RectTransform;
+            }
+            else if (bind.GetComponent<Transform>() != null)
+            {
+                index = (int)UIBind.UIType.Transform;
             }
             else
             {

@@ -30,7 +30,8 @@ namespace ZFramework.App
         }
 
 		public Image Image;
-		public GameObject TestGo;
-		public ImgItemElementPanel ImgItem;
+		public ImgItem ImgItem;
+		public RectTransform TestGo;
+		public ImgItem001 ImgItem001;
     }
 }

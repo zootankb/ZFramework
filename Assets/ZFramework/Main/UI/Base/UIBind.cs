@@ -19,6 +19,8 @@ namespace ZFramework.UI
             /// 空物体
             /// </summary>
             GameObject,
+            Transform,
+            RectTransform,
             Text,
             Image,
             RawImage,
@@ -72,42 +74,29 @@ namespace ZFramework.UI
         public string explain = string.Empty;
 
         /// <summary>
-        /// 获取ui物体里面的属性名字及类型，此方法可用
+        /// 父级Bind脚本
+        /// </summary>
+        [HideInInspector]
+        public Transform parentBind = null;
+
+        /// <summary>
+        /// 获取ui物体里面的属性名字及类型，此方法可用，若正常获取，返回不为空的数据，若执行异常，就返回Null
         /// </summary>
         /// <param name="uiGo"></param>
         /// <returns></returns>
-        public static Dictionary<UILevel, Dictionary<string, string>> GetFieldNameAndType(GameObject uiGo)
+        public static Dictionary<string, UIBind> GetFieldNameAndType(GameObject uiGo)
         {
-            Dictionary<UILevel, Dictionary<string, string>> fields = new Dictionary<UILevel, Dictionary<string, string>>();
-            fields.Add(UILevel.UI, new Dictionary<string, string>());
-            fields.Add(UILevel.UIElement, new Dictionary<string, string>());
+            Dictionary<string, UIBind> fields = new Dictionary<string, UIBind>();
             Transform[] allGos = uiGo.GetComponentsInChildren<Transform>();
             List<UIBind> binds = allGos.Where(go => go.GetComponent<UIBind>() != null).Select(g => g.GetComponent<UIBind>()).ToList();
             foreach (var bind in binds)
             {
-                if(bind.level == UILevel.UI)
+                if (fields.ContainsKey(bind.uiName))
                 {
-                    if (fields[UILevel.UI].ContainsKey(bind.uiName))
-                    {
-                        Debug.LogWarningFormat("已经有名字为 {0} 的属性了！", bind.uiName);
-                    }
-                    else
-                    {
-                        fields[UILevel.UI].Add(bind.uiName, bind.uiType.ToString());
-                    }
+                    Debug.LogFormat("------已经存在Key值为 {0} 的UI，所标记的UI名字不能相同！-------", bind.name);
+                    return null;
                 }
-                else if (bind.level == UILevel.UIElement)
-                {
-                    if (fields[UILevel.UIElement].ContainsKey(bind.uiName))
-                    {
-                        Debug.LogWarningFormat("已经有名字为 {0} 的属性了！", bind.uiName);
-                    }
-                    else
-                    {
-                        // ElementPanel后缀在创建脚本时添加
-                        fields[UILevel.UIElement].Add(bind.uiName, bind.uiName);
-                    }
-                }
+                fields.Add(bind.uiName, bind);
             }
             return fields;
         }
