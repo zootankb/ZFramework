@@ -89,7 +89,6 @@ namespace ZFramework.ZEditor
                     eleUIDesignerPath.WriteTextAssetContentStr(eleUIDesignerContent);
                 }
             }
-            Debug.LogFormat("--------Succeed Create {0}'s Scripts!!--------", uiName);
         }
         /// <summary>
         /// 脚本模板类
