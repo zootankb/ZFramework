@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ZFramework/Examples/05.CreateUIScript/TestUIPanel.unity
+- path: Assets/01Test/01Test.unity
   isLoaded: 1
   isActive: 1

@@ -16,7 +16,7 @@ namespace ZFramework
         /// <summary>
         /// 服务器中ab包的主文件
         /// </summary>
-        public string ManifestHost = "http://127.0.0.1:8000/static/Assetbundle.manifext";
+        public string ManifestHost = "http://127.0.0.1:8000/static/Assetbundle.manifest";
         /// <summary>
         /// 资源服务器路径
         /// </summary>

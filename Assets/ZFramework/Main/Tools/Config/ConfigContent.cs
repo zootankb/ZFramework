@@ -78,5 +78,14 @@ namespace ZFramework
                 return platform;
             }
         }
+
+        /// <summary>
+        /// 获取ab包的路径
+        /// </summary>
+        /// <returns></returns>
+        public static string GetABDir()
+        {
+            return string.Format("{0}/{1}", configPath.AssetbundlePath, CurrPlatform);
+        }
     }
 }
