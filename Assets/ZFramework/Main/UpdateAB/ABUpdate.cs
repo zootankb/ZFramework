@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using ZFramework.Res;
@@ -30,9 +31,9 @@ namespace ZFramework.UpdateAB
         /// </summary>
         private static Action<string> errorCb = null;
         /// <summary>
-        /// 更新ba包时候的返回信息事件
+        /// 总体进度
         /// </summary>
-        private static Action<string, float> childInfoCb = null;
+        private static Action<float> childInfoCb = null;
 
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace ZFramework.UpdateAB
         /// <summary>
         /// 本地manifestInfo文件里存储的子manifest文件信息
         /// </summary>
-        private static Dictionary<string, ChildDetailManifestInfo> localDetailInfos = null;
+        private static Dictionary<string, ChildDetailManifestInfo> localDetailInfos = new Dictionary<string, ChildDetailManifestInfo>();
 
         /// <summary>
         ///网络主manifest文件
@@ -53,8 +54,22 @@ namespace ZFramework.UpdateAB
         /// <summary>
         /// 网络manifestInfo文件里存储的子manifest文件信息
         /// </summary>
-        private static Dictionary<string, ChildDetailManifestInfo> netDetailInfos = null;
+        private static Dictionary<string, ChildDetailManifestInfo> netDetailInfos = new Dictionary<string, ChildDetailManifestInfo>();
 
+        /// <summary>
+        /// 正在下载的ab包的进程，下载完后的ab包进程会移出去
+        /// </summary>
+        private static Dictionary<string, float> currAbProgress = new Dictionary<string, float>();
+
+        /// <summary>
+        /// 总共有多少个ab包
+        /// </summary>
+        private static int totalAbNum = 0;
+
+        /// <summary>
+        /// 当前下载ab包的数量
+        /// </summary>
+        private static int currDownloadNum = 0;
         #endregion 
 
 
@@ -67,9 +82,9 @@ namespace ZFramework.UpdateAB
         /// <param name="maniProgress">主文件的进度</param>
         /// <param name="progress">更新进度</param>
         /// <param name="error">更新失败后的返回事件</param>
-        /// <param name="childInfo">更新ba包时候的返回信息事件</param>
+        /// <param name="childInfo">总体进度</param>
         public static void StartUpdate(Action<bool> fineshed = null, Action<float> maniProgress = null, Action<int,int> progress = null,
-            Action<string> error = null, Action<string, float> childInfo = null)
+            Action<string> error = null, Action<float> childInfo = null)
         {
             fineshedCb = fineshed;
             maniProgressCb = maniProgress;
@@ -116,7 +131,36 @@ namespace ZFramework.UpdateAB
         /// <param name="assetBundleInfos"></param>
         private static void UpdateAbs(List<ChildManifestInfo> assetBundleInfos)
         {
+            totalAbNum = assetBundleInfos.Count;
+            currDownloadNum = 0;
+            // 下载Manifest文件
+            Action<string, long, byte[], object[]> cb = (eurl, code, bytes, args) =>
+            {
+                currDownloadNum++;
+                if (bytes != null)
+                {
+                    string content = Encoding.UTF8.GetString(bytes);
+                }
+                else
+                {
+                    string errMsg = string.Format("下载 {0} 时出现异常！", eurl);
+                    errorCb?.Invoke(errMsg);
+                    Log.LogOperator.AddNetErrorRecord(errMsg);
+                }
+                progressCb?.Invoke(currDownloadNum, totalAbNum);
+            };
+            // 单个ab包的进度
+            Action<float> progress = (pro) =>
+            {
+                float p = (currAbProgress.Values.Sum() + currDownloadNum) / totalAbNum;
+                childInfoCb?.Invoke(p);
+            };
 
+            // 一次性下载所有的资源
+            foreach (var manifest in assetBundleInfos)
+            {
+                // TODO
+            }
         }
         #endregion
     }
