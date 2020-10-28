@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using ZFramework.Res;
+using ZFramework.ClassExt;
 
 namespace ZFramework.UpdateAB
 {
@@ -28,6 +30,8 @@ namespace ZFramework.UpdateAB
         private static Action<int, int> progressCb = null;
         /// <summary>
         /// 更新失败后的返回事件
+        /// 在下载主Manifest文件异常时最多只会返回一次错误
+        /// 下载其他manifest文件的时候可能会返回多个异常，因为多个ab包是同时下载的
         /// </summary>
         private static Action<string> errorCb = null;
         /// <summary>
@@ -57,21 +61,20 @@ namespace ZFramework.UpdateAB
         private static Dictionary<string, ChildDetailManifestInfo> netDetailInfos = new Dictionary<string, ChildDetailManifestInfo>();
 
         /// <summary>
-        /// 正在下载的ab包的进程，下载完后的ab包进程会移出去
-        /// </summary>
-        private static Dictionary<string, float> currAbProgress = new Dictionary<string, float>();
-
-        /// <summary>
         /// 总共有多少个ab包
         /// </summary>
         private static int totalAbNum = 0;
 
         /// <summary>
-        /// 当前下载ab包的数量
+        /// 当前下载好的ab包的数量
+        /// </summary>
+        private static int currDownloadedNum = 0;
+
+        /// <summary>
+        /// 当前完成的下载的数量
         /// </summary>
         private static int currDownloadNum = 0;
         #endregion 
-
 
         #region API
 
@@ -119,7 +122,6 @@ namespace ZFramework.UpdateAB
                     errorCb?.Invoke(errMsg);
                     Log.LogOperator.AddNetErrorRecord(errMsg);
                 }
-
             };
             // 开启下载
             NetResMgr.DownloadBytes(url, cb, maniProgressCb);
@@ -131,7 +133,9 @@ namespace ZFramework.UpdateAB
         /// <param name="assetBundleInfos"></param>
         private static void UpdateAbs(List<ChildManifestInfo> assetBundleInfos)
         {
-            totalAbNum = assetBundleInfos.Count;
+            // 因为要下载的文件种类包括manifest文件和ab文件，所以要乘以2
+            totalAbNum = assetBundleInfos.Count * 2;
+            currDownloadedNum = 0;
             currDownloadNum = 0;
             // 下载Manifest文件
             Action<string, long, byte[], object[]> cb = (eurl, code, bytes, args) =>
@@ -139,26 +143,73 @@ namespace ZFramework.UpdateAB
                 currDownloadNum++;
                 if (bytes != null)
                 {
-                    string content = Encoding.UTF8.GetString(bytes);
+                    // manifest下载成功
+                    currDownloadedNum++;
+                    ChildManifestInfo cmi = args.First() as ChildManifestInfo;
+                    string netContent = Encoding.UTF8.GetString(bytes);
+                    ChildDetailManifestInfo netCdmi = new ChildDetailManifestInfo(netContent);
+                    UpdateAb(netCdmi, cmi);
                 }
                 else
                 {
+                    // manifest下载失败
                     string errMsg = string.Format("下载 {0} 时出现异常！", eurl);
                     errorCb?.Invoke(errMsg);
                     Log.LogOperator.AddNetErrorRecord(errMsg);
                 }
                 progressCb?.Invoke(currDownloadNum, totalAbNum);
+
             };
             // 单个ab包的进度
             Action<float> progress = (pro) =>
             {
-                float p = (currAbProgress.Values.Sum() + currDownloadNum) / totalAbNum;
+                float p = currDownloadNum * 1.0f / totalAbNum;
                 childInfoCb?.Invoke(p);
             };
-
-            // 一次性下载所有的资源
+            // 一次性下载所有的manifest资源
             foreach (var manifest in assetBundleInfos)
             {
+                string url = string.Format("{0}/{1}", ConfigContent.configURL.ResHost, manifest.name);
+                NetResMgr.DownloadBytes(url, cb, progress, manifest);
+            }
+        }
+
+        /// <summary>
+        /// 更新单个ab包
+        /// </summary>
+        /// <param name="netCdmi">服务器里详细manifest文件</param>
+        /// <param name="cmi">主manifest文件里面的ab包信息</param>
+        private static void UpdateAb(ChildDetailManifestInfo netCdmi, ChildManifestInfo cmi)
+        {
+            bool hasUpdated = true;
+            if(netCdmi != null && cmi != null)
+            {
+                // 和本地对应的的manifest文件做对比
+                string localMFPath = string.Format("{0}/{1}.manifest", ConfigContent.GetPerABDir(), cmi.name);
+                string localAbPath = string.Format("{0}/{1}", ConfigContent.GetPerABDir(), cmi.name);
+                // 检查本地是否存在对应manifest文件
+                if (File.Exists(localMFPath))
+                {
+                    string localContent = localMFPath.GetTextAssetContentStr();
+                    ChildDetailManifestInfo localCdmi = new ChildDetailManifestInfo(localContent);
+                    if(netCdmi.crc == localCdmi.crc && File.Exists(localAbPath))
+                    {
+                        hasUpdated = false;
+                        currDownloadedNum++;
+                        currDownloadNum ++;
+                        progressCb?.Invoke(currDownloadNum, totalAbNum);
+                        // crc相同，ab包也在，就不需要下载了
+                        // 不管crc是否相同，只要两个文件有一个对不上，一律下载
+                        // Pass
+                    }
+                }
+            }
+            if (!hasUpdated)
+            {
+                // 下载ab包，同时把manifest的信息做参数传递
+                string url = string.Format("{0}/{1}", ConfigContent.configURL.ResHost, cmi.name);
+                // Action
+                // Progress
                 // TODO
             }
         }

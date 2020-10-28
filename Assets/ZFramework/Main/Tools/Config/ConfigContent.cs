@@ -80,12 +80,23 @@ namespace ZFramework
         }
 
         /// <summary>
-        /// 获取ab包的路径
+        /// 获取streamingasset中ab包的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public static string GetABDir()
+        public static string GetStreamingABDir()
         {
             return string.Format("{0}/{1}", configPath.AssetbundlePath, CurrPlatform);
+        }
+
+        /// <summary>
+        /// 获取persistent中ab包的文件夹路径
+        /// </summary>
+        /// <returns></returns>
+        public static string GetPerABDir()
+        {
+            // 只取最里面的一个文件夹，根据不同的平台内部还会有一个文件夹
+            string dirName = Path.GetDirectoryName(configPath.AssetbundlePath);
+            return string.Format("{0}/{1}/{2}", Application.persistentDataPath, dirName, CurrPlatform);
         }
     }
 }
