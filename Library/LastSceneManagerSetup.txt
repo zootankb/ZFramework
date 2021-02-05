@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/01Test/01Test.unity
+- path: Assets/ZFramework/Examples/08.AutoRead/TestAutoRead.unity
   isLoaded: 1
   isActive: 1
