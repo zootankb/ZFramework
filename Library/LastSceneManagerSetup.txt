@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ZFramework/Examples/08.AutoRead/TestAutoRead.unity
+- path: Assets/ZFramework/Examples/06.UIMgrOpen/UIMgrOpen.unity
   isLoaded: 1
   isActive: 1

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace ZFramework.AutoReadConfig
     /// Editor模式下为StreamingAssets
     /// 真机模式下为PersistentDataPath
     /// </summary>
+    [Serializable]
     public class BaseAutoReadDir<T> where T : class, new()
     {
         /// <summary>
@@ -19,7 +21,7 @@ namespace ZFramework.AutoReadConfig
         /// <summary>
         /// 主文件路径下所有配置文件所在文件夹的文件夹名字
         /// </summary>
-        protected const string ConfigDir = "Config";
+        protected const string ConfigDir = "ZFrameworkConfig";
 
         /// <summary>
         /// 相同类型文件的文件夹名字

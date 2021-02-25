@@ -235,6 +235,8 @@ namespace ZFramework.UI
                 ab.Unload(false);
 #endif
                 uiPrefabs.Add(prefabName, prefab);
+
+                Debug.Log(">>>Open UI: " + uiPrefabPath);
             }
             GameObject go = Instantiate(prefab, GetLevelTransform(level));
             uiGos.Add(prefabName, go);

@@ -12,10 +12,7 @@ namespace ZFramework.ZEditor
     public class UIBindEditor : UnityEditor.Editor
     {
         //序列化
-        private 
-                
-                
-                            SerializedObject obj;
+        private SerializedObject obj;
 
         //定义变量
         /// <summary>

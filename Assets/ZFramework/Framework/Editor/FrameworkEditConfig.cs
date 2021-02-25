@@ -947,7 +947,7 @@ namespace ZFramework.ZEditor
                     EditorGUILayout.LabelField("物体或资源名字", GUILayout.MaxWidth(150));
                     EditorGUILayout.LabelField("路径");
                     EditorGUILayout.EndHorizontal();
-                    float scvHeight = selectAssetDic.Count > 15 ? 200 : selectAssetDic.Count * 20;
+                    float scvHeight = selectAssetDic.Count > 15 ? 300 : (selectAssetDic.Count * 20 + 20);
                     abAssetScvPos = EditorGUILayout.BeginScrollView(abAssetScvPos, GUILayout.MaxHeight(scvHeight));
                     List<string> keys = selectAssetDic.Keys.ToList();
                     for (int i = 0; i < keys.Count; i++)
@@ -963,7 +963,7 @@ namespace ZFramework.ZEditor
                         }
                         if (GUILayout.Button("移除", GUILayout.MaxWidth(50)))
                         {
-                            RemoveAssetInfo(new List<string>() { keys[i] });
+                            RemoveAssetInfo(new List<string>() { key });
                         }
                         EditorGUILayout.EndHorizontal();
                     }
@@ -1146,6 +1146,7 @@ namespace ZFramework.ZEditor
                         config.UIScriptPath.CheckOrCreateDir();
                         CreateMonoScript.CreateAssetNameScript(abInfos.Select(p=>p.assetbundleName).ToList(), assetPropertyScriptName, config.FrameworkNamespace, savePath);
                         AssetDatabase.Refresh();
+                        Debug.Log(">>>常量配置文件路径：" + savePath);
                     }
                     GUILayout.Space(50);
                     EditorGUILayout.EndHorizontal();

@@ -223,7 +223,7 @@ namespace ZFramework.ClassExt
         {
             if (!File.Exists(path))
             {
-                File.Create(path);
+                File.Create(path).Dispose();
             }
         }
 

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZFramework.ClassExt;
 using System.IO;
+using System;
 
 namespace ZFramework.AutoReadConfig
 {
     /// <summary>
     /// 自动读取配置结构的行为
     /// </summary>
+    [Serializable]
     public class BaseAutoRead<T> : BaseAutoReadDir<T>where T : class, new()
     {
         /// <summary>
@@ -27,7 +29,7 @@ namespace ZFramework.AutoReadConfig
         public static string RelativePath { get { return Path.Combine( ConfigDir, dirName, FileNameWithExtension); } }
 
         /// <summary>
-        /// 本层中实现
+        /// 文件的绝对路径，BaseAutoRead层中实现
         /// </summary>
         public static string AbsPath { get { return Path.Combine(platformPath, RelativePath); } }
 
