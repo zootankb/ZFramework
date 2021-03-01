@@ -341,6 +341,8 @@ namespace ZFramework.UI
         public static void Init()
         {
             Instance.InitData();
+            // 开启多线工具Loom的运行
+            Log.LogOperator.AddLogRecord("多线程工具开启");
         }
 
         /// <summary>
