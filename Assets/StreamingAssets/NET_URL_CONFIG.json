@@ -1,1 +1,1 @@
-{"APIHost":"http://127.0.0.1:8000","ManifestHost":"http://127.0.0.1:8000/static/Windows.manifest","ResHost":"http://127.0.0.1:8000/static"}
+{"APIHost":"http://127.0.0.1:8000","ManifestHost":"http://127.0.0.1:8000/static/resList.json","ResHost":"http://127.0.0.1:8000/static"}

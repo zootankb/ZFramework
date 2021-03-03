@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using ZFramework.ClassExt;
+using ZFramework.Res;
 
 namespace ZFramework.HotFix
 {
@@ -16,17 +17,17 @@ namespace ZFramework.HotFix
         /// <summary>
         /// 文件夹
         /// </summary>
-        private const string HotFixConfigDir = "HotFix";
+        public static string HotFixConfigDir = LocalResPath.DIR_ASSETBUNDLE_PATH;
 
         /// <summary>
         /// 本地存储资源列表的名字
         /// </summary>
-        private static string LocalResListFilePath = Path.Combine(Application.persistentDataPath, HotFixConfigDir, "resList.json");
+        public static string LocalResListFilePath = Path.Combine(HotFixConfigDir, "resList.json");
 
         /// <summary>
         /// 本地存储已经下载好的资源列表的名字
         /// </summary>
-        private static string downloadedResListFilePath = Path.Combine(Application.persistentDataPath, HotFixConfigDir, "downloadedResList.json");
+        public static string downloadedResListFilePath = Path.Combine(HotFixConfigDir, "downloadedResList.json");
 
         /// <summary>
         /// 本地存储的资源列表【json】
@@ -41,18 +42,23 @@ namespace ZFramework.HotFix
 
         #region API
         /// <summary>
-        /// 本地的资源列表的清单
+        /// 本地的资源列表的清单,不存在就new一个
         /// </summary>
         public static AssetBundleAssetList LocalResList
         {
             get
             {
-                if (localResList == null)
+                if (localResList == null || string.IsNullOrEmpty(localResList.copyRight) || string.IsNullOrEmpty(localResList.mainCrc))
                 {
                     if (File.Exists(LocalResListFilePath))
                     {
                         string jsonContent = LocalResListFilePath.GetTextAssetContentStr();
                         localResList = jsonContent.JsonToTObject<AssetBundleAssetList>();
+                    }
+                    else
+                    {
+                        localResList = new AssetBundleAssetList() { assets = new List<AssetBundleAsset>() };
+                        SaveLocalResList(localResList);
                     }
                 }
                 return localResList;
@@ -60,18 +66,23 @@ namespace ZFramework.HotFix
         }
 
         /// <summary>
-        /// 已经下载的资源列表的清单【版本号和crc不同时重新全部更新】
+        /// 已经下载的资源列表的清单，不存在就new一个【版本号和crc不同时重新全部更新】
         /// </summary>
         public static AssetBundleAssetList DownloadedResList
         {
             get
             {
-                if (downloadedResList == null)
+                if (downloadedResList == null || string.IsNullOrEmpty(downloadedResList.copyRight) || string.IsNullOrEmpty(downloadedResList.mainCrc))
                 {
                     if (File.Exists(downloadedResListFilePath))
                     {
                         string jsonContent = downloadedResListFilePath.GetTextAssetContentStr();
                         downloadedResList = jsonContent.JsonToTObject<AssetBundleAssetList>();
+                    }
+                    else
+                    {
+                        downloadedResList = new AssetBundleAssetList() { assets = new List<AssetBundleAsset>() };
+                        SaveDownloadedResList();
                     }
                 }
                 return downloadedResList;
@@ -84,9 +95,7 @@ namespace ZFramework.HotFix
         /// <param name="netResList"></param>
         public static void SaveLocalResList(AssetBundleAssetList netResList)
         {
-            // 把服务器中的资源列表赋值给localResList，并存储到本地
-            localResList = netResList;
-            string jsonContent = localResList.ToNewtonJson();
+            string jsonContent = netResList.ToNewtonJson();
             LocalResListFilePath.WriteTextAssetContentStr(jsonContent);
         }
 
@@ -125,21 +134,24 @@ namespace ZFramework.HotFix
         }
 
         /// <summary>
-        /// 检查网络资源和本地资源差异结果，并做返回，下载差异文件
+        /// 把更新完的资源并存储到本地
         /// </summary>
-        /// <param name="netList"></param>
-        /// <returns></returns>
-        public static List<AssetBundleAsset> CheckDifferenceFromLoadResList(AssetBundleAssetList netResList)
+        public static void SaveDownloadedResList()
         {
-            if (DownloadedResList != null && DownloadedResList.assets!=null)
-            {
-                var res = netResList.assets.Except(DownloadedResList.assets, new AssetBundleAssetComparer());
-                return res.ToList();
-            }
-            else
-            {
-                return netResList.assets;
-            }
+            string jsonContent = downloadedResList.ToNewtonJson();
+            downloadedResListFilePath.WriteTextAssetContentStr(jsonContent);
+        }
+
+        /// <summary>
+        /// 比较两个列表资源的差异结果，并做返回
+        /// </summary>
+        /// <param name="leftList"></param>
+        /// <param name="rightList"></param>
+        /// <returns></returns>
+        public static List<AssetBundleAsset> CheckDifference(List<AssetBundleAsset> leftList, List<AssetBundleAsset> rightList)
+        {
+            var res = leftList.Except(rightList, new AssetBundleAssetComparer());
+            return res.ToList();
         }
         #endregion
     }
