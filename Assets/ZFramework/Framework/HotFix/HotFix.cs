@@ -17,7 +17,7 @@ namespace ZFramework.HotFix
     /// </summary>
     public static class HotFix
     {
-        #region Private Data
+        #region Struct Data
 
         /// <summary>
         /// 服务器中的资源列表的清单
@@ -38,9 +38,14 @@ namespace ZFramework.HotFix
         /// 已经下载的资源列表的清单【版本号和crc不同时重新全部更新】
         /// </summary>
         public static AssetBundleAssetList downloadedResList = null;
+
+        /// <summary>
+        /// 线程
+        /// </summary>
+        private static Thread tmp = null;
         #endregion
 
-        #region Public Data
+        #region Single Data
         public static bool isDone = false;                  // 是否更新完
 
         public static bool readToHotfix = false;            // 是否准备好更新
@@ -67,11 +72,24 @@ namespace ZFramework.HotFix
         {
             // 在线程里面做列表下载、比对、资源下载等一系列操作
             // 在主线程里初始化HotFixConfig
-            Debug.Log("主线程里初始化服务器地址：" + HotFixConfig.LocalResListFilePath);
-            Thread t = new Thread(HotfixEnter);
-            t.IsBackground = true;
-            t.Name = typeof(HotFix).Name;
-            t.Start();
+            string initName = HotFixConfig.LocalResListFilePath;
+            Debug.Log("主线程里初始化服务器地址：" + initName);
+            tmp = new Thread(HotfixEnter);
+            tmp.IsBackground = true;
+            tmp.Name = typeof(HotFix).Name;
+            tmp.Start();
+        }
+
+        /// <summary>
+        /// 停止更新，防止线程后台继续运行
+        /// </summary>
+        public static void StopHotFix()
+        {
+            if(tmp != null)
+            {
+                tmp.Abort();
+                tmp = null;
+            }
         }
         #endregion
 
@@ -90,11 +108,10 @@ namespace ZFramework.HotFix
                 netResList = jsonContent.ToNewtonObjectT<AssetBundleAssetList>();
                 Debug.Log(netResList.copyRight);
                 // 版本不同需要下载
-                if (!netResList.copyRight.Equals(HotFixConfig.LocalResList.copyRight))
+                if (!netResList.copyRight.Equals(HotFixConfig.LocalResList.copyRight) || !netResList.mainCrc.Equals(HotFixConfig.LocalResList.mainCrc))
                 {
                     // 找出差异文件
                     List<AssetBundleAsset> res = HotFixConfig.CheckDifference(netResList.assets, HotFixConfig.LocalResList.assets);
-                    Debug.LogFormat("需要下载 {0} 个文件", res.Count);
                     if(res.Count == 0)
                     {
                         // 已经下载完，把文件存储下来
@@ -103,6 +120,7 @@ namespace ZFramework.HotFix
                     }
                     else
                     {
+                        // 到此不要管版本一样不一样，只要crc不一样就视为不同
                         // 还没下载完，就要和已经下载的比对下还有哪些没有下载
                         Debug.Log("还没下载完，已经下载了: " + HotFixConfig.DownloadedResList.assets.Count);
                         res = HotFixConfig.CheckDifference(res, HotFixConfig.DownloadedResList.assets);
@@ -124,14 +142,17 @@ namespace ZFramework.HotFix
                             foreach (var r in res)
                             {
                                 // 由服务器接口查询文件大小
-                                string rUrl = string.Format("{0}?filename={1}", ConfigContent.configURL.APIHost, r.assetName);
+                                //string rUrl = string.Format("{0}?filename={1}", ConfigContent.configURL.APIHost, r.assetName);
+                                //needToDownloadTotalSize += GetNetFileLengthAPI(rUrl);
+                                string rUrl = string.Format("{0}/static/{1}", ConfigContent.configURL.APIHost, r.assetName);
                                 needToDownloadTotalSize += GetNetFileLength(rUrl);
                                 Debug.Log("文件：" + rUrl + ",  " + needToDownloadTotalSize);
                             }
                             for (int i = 0; i < res.Count; i++)
                             {
                                 var r = res[i];
-                                string fileSizeUrl = string.Format("{0}?filename={1}", ConfigContent.configURL.APIHost, r.assetName);
+                                //string fileSizeUrl = string.Format("{0}?filename={1}", ConfigContent.configURL.APIHost, r.assetName);
+                                string fileSizeUrl = string.Format("{0}/static/{1}", ConfigContent.configURL.APIHost, r.assetName);
                                 string fileUrl = string.Format("{0}/{1}", ConfigContent.configURL.ResHost, r.assetName);
                                 curDownloadAssetName = r.assetName;
                                 curDownloadAssetSize = 0;        // 当前文件已经下载多大
@@ -161,7 +182,6 @@ namespace ZFramework.HotFix
                                             totalProgress = (downloadedSize + curDownloadAssetSize) * 1.0 / needToDownloadTotalSize;
                                             stream.Write(bArr, 0, size);
                                             size = responseStream.Read(bArr, 0, (int)bArr.Length);
-                                            Debug.Log(totalProgress);
                                         }
                                     }
                                 }
@@ -186,11 +206,11 @@ namespace ZFramework.HotFix
         }
 
         /// <summary>
-        /// 获取服务器中文件的大小
+        /// 通过接口获取服务器中文件的大小，需要在服务器中写一个获取文件大小的接口
         /// </summary>
         /// <param name="downloadUrl"></param>
         /// <returns></returns>
-        private static long GetNetFileLength(string downloadUrl)
+        private static long GetNetFileLengthAPI(string downloadUrl)
         {
             long length = 0;
             try
@@ -206,6 +226,30 @@ namespace ZFramework.HotFix
                             length = long.Parse(result);
                         }
                     }
+                }
+            }
+            catch (Exception e)
+            {
+                ZFramework.Log.LogOperator.AddResErrorRecord("下载资源时出错", e.Message);
+            }
+            return length;
+        }
+
+        /// <summary>
+        /// 获取服务器中文件的大小，服务器中会文件报错，但不影响服务器运行
+        /// </summary>
+        /// <param name="downloadUrl"></param>
+        /// <returns></returns>
+        private static long GetNetFileLength(string downloadUrl)
+        {
+            long length = 0;
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(downloadUrl);
+                request.Method = "HEAD";
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    length = response.ContentLength;
                 }
             }
             catch (Exception e)

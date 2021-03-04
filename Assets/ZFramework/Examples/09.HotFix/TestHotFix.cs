@@ -12,62 +12,27 @@ public class TestHotFix : MonoBehaviour
 {
     public Text txt = null;
 
-    public string url = null;
-
-    public string path = null;
-
-    // Start is called before the first frame update
     void Start()
     {
-        long totalCount = 0;
-        // print(GetNetFileLength(url));
-        // HttpDownloadFile(url, path);
-        /*
-        Loom.RunAsync(() =>
-        {
-            for (long i = 0; i < 10000000000; i++)
-            {
-                totalCount += i;
-            }
-            Loom.QueueOnMainThread(() =>
-            {
-                print("完成度：" + totalCount);
-            });
-        });
-        */
-        
         HotFix.StartHotFix();
         txt.text = ConfigContent.configURL.ManifestHost;
+        StartCoroutine(IEumStart());
     }
 
-    /// <summary>
-    /// 获取服务器中文件的大小
-    /// </summary>
-    /// <param name="downloadUrl"></param>
-    /// <returns></returns>
-    private static long GetNetFileLength(string downloadUrl)
+    private void OnDestroy()
     {
-        long length = 0;
-        try
+        HotFix.StopHotFix();
+    }
+
+    private IEnumerator IEumStart()
+    {
+        while (!HotFix.isDone)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(downloadUrl);
-
-            request.MaximumAutomaticRedirections = 4;
-
-            request.MaximumResponseHeadersLength = 4;
-
-            request.Credentials = CredentialCache.DefaultCredentials;
-
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-            length = response.ContentLength;
-            
-            response.Close();
+            string content = string.Format("文件名字：{0}\t已经下载：{1}/{2}\t当前子进度：{3}\t第 {4} 个文件\r\n已经存储了：{5}/{6}\t已经下载了 {7} 个文件\t总共 {8} 个文件，总进度：{9}",
+                HotFix.curDownloadAssetName, HotFix.curDownloadAssetSize, HotFix.curDownloadAssetTotalSize, HotFix.currDownloadProgress, HotFix.curDownloadAssetIndex,
+                HotFix.downloadedSize, HotFix.needToDownloadTotalSize, HotFix.downloadedCount, HotFix.needToDownloadCount, HotFix.totalProgress);
+            txt.text = content;
+            yield return new WaitForEndOfFrame();
         }
-        catch(Exception e)
-        {
-            ZFramework.Log.LogOperator.AddResErrorRecord("下载资源时出错", e.Message);
-        }
-        return length;
     }
 }

@@ -127,7 +127,15 @@ namespace ZFramework.HotFix
                 {
                     downloadedResList.assets = new List<AssetBundleAsset>();
                 }
-                downloadedResList.assets.Add(record);
+                var res = downloadedResList.assets.Where(p => p.assetName.Equals(record.assetName)).ToList();
+                if(res.Count == 0)
+                {
+                    downloadedResList.assets.Add(record);
+                }
+                else
+                {
+                    res.First().crc = record.crc;
+                }
                 string jsonContent = downloadedResList.ToNewtonJson();
                 downloadedResListFilePath.WriteTextAssetContentStr(jsonContent);
             }
