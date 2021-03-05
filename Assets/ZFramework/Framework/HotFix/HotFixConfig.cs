@@ -15,6 +15,11 @@ namespace ZFramework.HotFix
     {
         #region Data
         /// <summary>
+        /// 资源列表文件名
+        /// </summary>
+        public const string LocalResListFileName = "resList.json";
+
+        /// <summary>
         /// 文件夹
         /// </summary>
         public static string HotFixConfigDir = LocalResPath.DIR_ASSETBUNDLE_PATH;
@@ -22,7 +27,7 @@ namespace ZFramework.HotFix
         /// <summary>
         /// 本地存储资源列表的名字
         /// </summary>
-        public static string LocalResListFilePath = Path.Combine(HotFixConfigDir, "resList.json");
+        public static string LocalResListFilePath = Path.Combine(HotFixConfigDir, LocalResListFileName);
 
         /// <summary>
         /// 本地存储已经下载好的资源列表的名字

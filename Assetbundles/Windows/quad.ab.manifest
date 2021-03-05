@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 865848282
+CRC: 2845375068
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 960c77713cc58b4afea989a8532fa57d
+    Hash: 7535db66336cf036160d096c17f60961
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 848e8bf41a9290db639fc958fbe8c074
+    Hash: f073edb454177d7ec8680f16e1b75c42
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -23,8 +23,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 135
+- Class: 64
   Script: {instanceID: 0}
 Assets:
-- Assets/ZFramework/Examples/07.TestAssetbundleManifest/Sphere.prefab
+- Assets/ZFramework/Examples/07.TestAssetbundleManifest/Quad.prefab
 Dependencies: []

@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 865848282
+CRC: 2485258899
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 960c77713cc58b4afea989a8532fa57d
+    Hash: afb16694de69e17471e3498988e82880
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 848e8bf41a9290db639fc958fbe8c074
+    Hash: a4c4aa948f478cf925da64d4ebbb2636
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -23,8 +23,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 135
+- Class: 136
   Script: {instanceID: 0}
 Assets:
-- Assets/ZFramework/Examples/07.TestAssetbundleManifest/Sphere.prefab
+- Assets/ZFramework/Examples/07.TestAssetbundleManifest/Cylinder.prefab
 Dependencies: []

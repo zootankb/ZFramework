@@ -14,9 +14,11 @@ public class TestHotFix : MonoBehaviour
 
     void Start()
     {
-        HotFix.StartHotFix();
         txt.text = ConfigContent.configURL.ManifestHost;
-        StartCoroutine(IEumStart());
+
+        txt.text = Application.version;
+        //HotFix.StartHotFix();        
+        //StartCoroutine(IEumStart());
     }
 
     private void OnDestroy()

@@ -73,6 +73,26 @@ namespace ZFramework.ZEditor
         /// 上次ab包滑动框的位置
         /// </summary>
         private Vector2 abAssetScvPos0 = Vector2.zero;
+
+        /// <summary>
+        /// 查询结果ab包滑动框的位置
+        /// </summary>
+        private Vector2 abAssetScvPos1 = Vector2.zero;
+
+        /// <summary>
+        /// 主文件的crc
+        /// </summary>
+        private string platformMainCrc = string.Empty;
+
+        /// <summary>
+        /// 旧的主文件的crc
+        /// </summary>
+        private string prePlatformMainCrc = string.Empty;
+
+        /// <summary>
+        /// 查询结果
+        /// </summary>
+        private AssetBundleAssetList checkResult = null;
         #endregion
 
 
@@ -123,13 +143,17 @@ namespace ZFramework.ZEditor
                 curABInfos = GetAbInfoByDir(CUR_AB_DIR_PATH, ABInfo.platforms[selectedOption]);
             }
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField(string.Format("版本：{0}, Manifest.CRC：{1}", Application.version, platformMainCrc));
+
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("选择", GUILayout.MaxWidth(30));
             EditorGUILayout.LabelField("包名", GUILayout.MaxWidth(150));
             EditorGUILayout.LabelField("crc", GUILayout.MaxWidth(150));
             EditorGUILayout.LabelField("绝对路径");
             EditorGUILayout.EndHorizontal();
-            float scvHeight = curABInfos.Count > 10 ? 200 : (curABInfos.Count * 20);
+
+            float scvHeight = 200; //curABInfos.Count > 10 ? 200 : (curABInfos.Count * 20);
+
             abAssetScvPos = EditorGUILayout.BeginScrollView(abAssetScvPos, GUILayout.MaxHeight(scvHeight));
             for (int i = 0; i < curABInfos.Count; i++)
             {
@@ -141,6 +165,7 @@ namespace ZFramework.ZEditor
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(50);
             if (GUILayout.Button("全部选中", EditorStyles.miniButtonLeft))
@@ -168,20 +193,26 @@ namespace ZFramework.ZEditor
             }
             GUILayout.Space(50);
             EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
+
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(string.IsNullOrEmpty(PRE_AB_DIR_PATH)?"没有选择任何文件夹": "原先的AB包文件夹："+ PRE_AB_DIR_PATH);
             if (GUILayout.Button("选择文件夹 【主 Manifest 文件要与文件夹名字相同】", EditorStyles.miniButtonRight))
             {
-                PRE_AB_DIR_PATH = EditorUtility.OpenFolderPanel("打开文件夹", null, PRE_AB_DIR_PATH);
-                EditorPrefs.SetString(PRE_AB_DIR_PATH_PREF_NAME, PRE_AB_DIR_PATH);
-                preABInfos = GetAbInfoByDir(PRE_AB_DIR_PATH);
-                Debug.Log(PRE_AB_DIR_PATH);
+                string tmpDir = EditorUtility.OpenFolderPanel("打开文件夹", null, PRE_AB_DIR_PATH);
+                if (!string.IsNullOrEmpty(tmpDir))
+                {
+                    PRE_AB_DIR_PATH = tmpDir;
+                    EditorPrefs.SetString(PRE_AB_DIR_PATH_PREF_NAME, PRE_AB_DIR_PATH);
+                    preABInfos = GetAbInfoByDir(PRE_AB_DIR_PATH);
+                }
             }
             EditorGUILayout.EndHorizontal();
+
             if (!Directory.Exists(PRE_AB_DIR_PATH))
             {
                 EditorGUILayout.LabelField(string.Format("选择的文件夹 {0} 不存在", PRE_AB_DIR_PATH));
@@ -192,13 +223,17 @@ namespace ZFramework.ZEditor
             }
             else
             {
+                EditorGUILayout.LabelField(string.Format("Manifest.CRC：{0}", prePlatformMainCrc));
+
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("选择", GUILayout.MaxWidth(30));
                 EditorGUILayout.LabelField("包名", GUILayout.MaxWidth(150));
                 EditorGUILayout.LabelField("crc", GUILayout.MaxWidth(150));
                 EditorGUILayout.LabelField("绝对路径");
                 EditorGUILayout.EndHorizontal();
+
                 float scvHeight0 = curABInfos.Count > 10 ? 200 : (curABInfos.Count * 20);
+
                 abAssetScvPos0 = EditorGUILayout.BeginScrollView(abAssetScvPos0, GUILayout.MaxHeight(scvHeight0));
                 for (int i = 0; i < preABInfos.Count; i++)
                 {
@@ -215,24 +250,90 @@ namespace ZFramework.ZEditor
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorGUILayout.Space();
+
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(50);
             if (GUILayout.Button("左查询差异【结果如下表】", EditorStyles.miniButtonLeft))
             {
-
+                if(curABInfos!=null && preABInfos != null)
+                {
+                    var res = curABInfos.Except(preABInfos, new ABInfoComparer());
+                    if(checkResult == null)
+                    {
+                        checkResult = new AssetBundleAssetList();
+                    }
+                    checkResult.copyRight = Application.version;
+                    checkResult.mainCrc = platformMainCrc;
+                    checkResult.assets = res.Count() == 0 ? new List<AssetBundleAsset>() : res.Select(p => new AssetBundleAsset() { assetName = p.filename, crc = p.crc }).ToList();
+                }
             }
             GUILayout.Space(2);
-            if (GUILayout.Button("右查询差异", EditorStyles.miniButtonMid))
+            if (GUILayout.Button("右查询差异【结果如下表】", EditorStyles.miniButtonMid))
             {
-
+                if (curABInfos != null && preABInfos != null)
+                {
+                    var res = preABInfos.Except(curABInfos, new ABInfoComparer());
+                    if (checkResult == null)
+                    {
+                        checkResult = new AssetBundleAssetList();
+                    }
+                    checkResult.copyRight = null;
+                    checkResult.mainCrc = prePlatformMainCrc;
+                    checkResult.assets = res.Count() == 0 ? new List<AssetBundleAsset>() : res.Select(p => new AssetBundleAsset() { assetName = p.filename, crc = p.crc }).ToList();
+                }
             }
             GUILayout.Space(2);
-            if (GUILayout.Button("查询结果导出为json【结果如下表】", EditorStyles.miniButtonRight))
+            if (GUILayout.Button("查询结果导出为json", EditorStyles.miniButtonMid))
             {
-
+                if(checkResult == null)
+                {
+                    ShowNotification(new GUIContent("没有比较结果"));
+                }
+                else if(checkResult.assets == null || checkResult.assets.Count == 0)
+                {
+                    ShowNotification(new GUIContent("比较结果为0"));
+                }
+                else
+                {
+                    string jsonContent = checkResult.ToNewtonJson();
+                    string path = Path.Combine(CUR_AB_DIR_PATH, HotFix.HotFixConfig.LocalResListFileName);
+                    path.WriteTextAssetContentStr(jsonContent);
+                    ShowNotification(new GUIContent("已经写入json文件：" + path));
+                }
+            }
+            if (GUILayout.Button("在文件资源管理器中显示", EditorStyles.miniButtonRight))
+            {
+                string path = Path.Combine(CUR_AB_DIR_PATH, HotFix.HotFixConfig.LocalResListFileName);
+                if (File.Exists(path))
+                {
+                    EditorUtility.RevealInFinder(path);
+                }
+                else
+                {
+                    EditorUtility.RevealInFinder(CUR_AB_DIR_PATH);
+                }
             }
             GUILayout.Space(50);
             EditorGUILayout.EndHorizontal();
+
+            if(checkResult != null)
+            {
+                EditorGUILayout.LabelField(string.Format("版本：{0}, Manifest.CRC：{1}", checkResult.copyRight, checkResult.mainCrc));
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("包名", GUILayout.MaxWidth(this.position.width/2));
+                EditorGUILayout.LabelField("crc", GUILayout.MaxWidth(this.position.width / 2));
+                EditorGUILayout.EndHorizontal();
+                float scvHeight0 = curABInfos.Count > 10 ? 200 : (curABInfos.Count * 20);
+                abAssetScvPos1 = EditorGUILayout.BeginScrollView(abAssetScvPos1, GUILayout.MaxHeight(scvHeight0));
+                for (int i = 0; i < checkResult.assets.Count; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label(checkResult.assets[i].assetName, EditorStyles.label, GUILayout.MaxWidth(this.position.width / 2));
+                    GUILayout.Label(checkResult.assets[i].crc, EditorStyles.label, GUILayout.MaxWidth(this.position.width / 2));
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView();
+            }
         }
 
         /// <summary>
@@ -255,7 +356,7 @@ namespace ZFramework.ZEditor
 
         #region 私有函数
         /// <summary>
-        /// 通过文件夹路径获取manifest文件及对应的文件信息 
+        /// 通过文件夹路径获取manifest文件及对应的文件信息，主文件的名字与所在文件夹名字一样
         /// </summary>
         /// <param name="dir"></param>
         /// <returns></returns>
@@ -275,6 +376,7 @@ namespace ZFramework.ZEditor
                 if (mainFileRes.Count() == 1 && mainCrcRes.Count() == 1)
                 {
                     string mainCrc = GetCrcFromManifest(Path.Combine(dir, dirName + manifestExte));
+                    prePlatformMainCrc = mainCrc;
                     infos.Add(new ABInfo()
                     {
                         selected = true,
@@ -318,6 +420,14 @@ namespace ZFramework.ZEditor
                         }
                     }
                 }
+                else
+                {
+                    prePlatformMainCrc = null;
+                }
+            }
+            else
+            {
+                prePlatformMainCrc = null;
             }
             return infos;
         }
@@ -330,6 +440,7 @@ namespace ZFramework.ZEditor
         /// <returns></returns>
         private List<ABInfo> GetAbInfoByDir(string dir, string platform)
         {
+            platformMainCrc = string.Empty;
             List<ABInfo> infos = new List<ABInfo>();
             if (Directory.Exists(dir))
             {
@@ -342,12 +453,12 @@ namespace ZFramework.ZEditor
                 if(mainFileRes.Count()==1 && mainCrcRes.Count() == 1)
                 {
                     string relativePath = dir.Replace(Application.dataPath.Replace("Assets", string.Empty), string.Empty);
-                    string mainCrc = GetCrcFromManifest(Path.Combine(dir, platform + manifestExte));
+                    platformMainCrc = GetCrcFromManifest(Path.Combine(dir, platform + manifestExte));
                     infos.Add(new ABInfo()
                     {
                         selected = true,
                         filename = platform,
-                        crc = mainCrc,
+                        crc = platformMainCrc,
                         fileAbsPath = Path.Combine(dir, platform),
                         fileRelativePath = Path.Combine(relativePath, platform)
                     });
@@ -355,7 +466,7 @@ namespace ZFramework.ZEditor
                     {
                         selected = true,
                         filename = platform + manifestExte,
-                        crc = mainCrc,
+                        crc = platformMainCrc,
                         fileAbsPath = Path.Combine(dir, platform + manifestExte),
                         fileRelativePath = Path.Combine(relativePath, platform + manifestExte)
                     });
@@ -397,8 +508,8 @@ namespace ZFramework.ZEditor
         /// <returns></returns>
         private string GetCrcFromManifest(string filePath)
         {
-            string content = filePath.GetTextAssetContentStr();
-            string[] rows = Regex.Split(content,"\r\n");
+            string content = filePath.GetTextAssetContentStr().Trim();
+            string[] rows = Regex.Split(content,"\n");
             return rows[1].Replace("CRC: ", string.Empty);
         }
 #endregion
@@ -440,6 +551,58 @@ namespace ZFramework.ZEditor
                 return string.Format("{0},\t{1},\t{2},\t{3},\t{4}", selected, filename, crc, fileAbsPath, fileRelativePath);
             }
         }
-#endregion
+
+        /// <summary>
+        /// ABInfo的比较器
+        /// </summary>
+        public class ABInfoComparer : IEqualityComparer<ABInfo>
+        {
+            public bool Equals(ABInfo x, ABInfo y)
+            {
+                return x.filename == y.filename && x.crc == y.crc;
+            }
+
+            public int GetHashCode(ABInfo obj)
+            {
+                return obj.filename.GetHashCode() ^ obj.crc.GetHashCode();
+            }
+        }
+
+        /// <summary>
+        /// 查询的ab包的清单
+        /// </summary>
+        [System.Serializable]
+        public class AssetBundleAssetList
+        {
+            /// <summary>
+            /// 版本号
+            /// </summary>
+            public string copyRight = null;
+            /// <summary>
+            /// 主要的crc
+            /// </summary>
+            public string mainCrc = null;
+            /// <summary>
+            /// 资源列表
+            /// </summary>
+            public List<AssetBundleAsset> assets = null;
+        }
+
+        /// <summary>
+        /// AB包的对象
+        /// </summary>
+        [System.Serializable]
+        public class AssetBundleAsset
+        {
+            /// <summary>
+            /// ab包的名字，同时也是ab包的manifest的名字
+            /// </summary>
+            public string assetName = null;
+            /// <summary>
+            /// ab包的crc
+            /// </summary>
+            public string crc = null;
+        }
+        #endregion
     }
 }

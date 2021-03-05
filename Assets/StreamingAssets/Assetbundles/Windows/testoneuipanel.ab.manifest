@@ -1,27 +1,37 @@
 ManifestFileVersion: 0
-CRC: 3879846273
+CRC: 843488371
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 54afc2b8db4f59d74df0e1e7674c686a
+    Hash: 3681e118e990401ba63d885f9574e503
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 6893f95f46ef244a87a9b1a9333d963c
+    Hash: c7b6fa76141e0c3b42c5ee468cb8a04e
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
 - Class: 28
+  Script: {instanceID: 0}
+- Class: 48
   Script: {instanceID: 0}
 - Class: 114
   Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 7ff382d2d543ac74faf167edf2032bd5, type: 3}
+  Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 206c2395563087a43b8766d2cf12a61a, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: d0e726a8ffd289f42850c5b7865adb24, type: 3}
+  Script: {fileID: 11500000, guid: 8760958dd152f0b4eb77b5a99d82ed5d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ef01d23d83e71f24f900a6c06c4438ab, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fc7c517422e7d084d9053c4d7cdcdde8, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 128
   Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
@@ -30,5 +40,5 @@ ClassTypes:
 - Class: 224
   Script: {instanceID: 0}
 Assets:
-- Assets/Art/UIPrefab/TestOneUIPanel.prefab
+- Assets/ZFramework/Examples/05.CreateUIScript/TestOneUIPanel.prefab
 Dependencies: []

@@ -1127,7 +1127,7 @@ namespace ZFramework.ZEditor
                         DeleteAssetInfo(slct);
                     }
                     GUILayout.Space(3);
-                    if (GUILayout.Button("打开资源浏览器", EditorStyles.miniButtonMid))
+                    if (GUILayout.Button("打开文件资源管理器", EditorStyles.miniButtonMid))
                     {
                         string path = string.Format("{0}/{1}/{2}", Application.dataPath.Replace("/Assets",string.Empty), config.AssetbundlePath, ConfigContent.platforms[currSelectAbPlatformIndex]);
                         if (Directory.Exists(path))
@@ -1153,7 +1153,7 @@ namespace ZFramework.ZEditor
                 }
                 else
                 {
-                    ShowNotification(new GUIContent("没有ab包信息"));
+                    ShowNotification(new GUIContent(ConfigContent.platforms[currSelectAbPlatformIndex] + " 平台没有ab包信息"));
                 }
             }
             // UI
