@@ -34,7 +34,7 @@ namespace ZFramework
         /// <summary>
         /// 框架支持的全部平台
         /// </summary>
-        public readonly static string[] platforms = new string[] { "Windows", "Andriod", "IOS" };
+        public readonly static string[] platforms = new string[] { "Windows", "Android", "IOS" };
 
         static ConfigContent()
         {

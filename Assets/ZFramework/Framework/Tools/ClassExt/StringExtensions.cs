@@ -176,10 +176,11 @@ namespace ZFramework.ClassExt
                 byte[] bs = null;
                 lock (_locker)
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    FileInfo fi = new FileInfo(path);
+                    bs = new byte[fi.Length];
+                    using(FileStream fs = fi.OpenRead())
                     {
-                        bs = new byte[fs.Length];
-                        fs.Read(bs, 0, bs.Length);
+                        fs.Read(bs, 0, Convert.ToInt32(fs.Length));
                     }
                 }
                 return bs;

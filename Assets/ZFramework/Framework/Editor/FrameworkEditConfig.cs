@@ -171,11 +171,6 @@ namespace ZFramework.ZEditor
                 "在点击生成资源常量的时候，会显示找不到ab包的提示，解决办法为：点击下其他平台，再点击目标平台就可以了，暂时不知道原因为何！";
 
         /// <summary>
-        /// 存储选取的物体的信息key值，由EditorPrefs使用
-        /// </summary>
-        private const string EDITOR_AB_INFO_KEY = "EDITOR_AB_INFO_KEY";
-
-        /// <summary>
         /// 存储ab包资源信息的存储，key为selection[i].name
         /// </summary>
         private static Dictionary<string, SelectAssetInfo> selectAssetDic = new Dictionary<string, SelectAssetInfo>();
@@ -232,7 +227,10 @@ namespace ZFramework.ZEditor
         #endregion
 
         #region Data UI操作
-
+        /// <summary>
+        /// 供外部调用
+        /// </summary>
+        public static bool editorUIFromPrefab = false;
         #endregion
 
         #region MenuItem的操作
@@ -382,8 +380,12 @@ namespace ZFramework.ZEditor
             #endregion
 
             #region 初始化 ab包操作
-            string con = EditorPrefs.GetString(EDITOR_AB_INFO_KEY, "{}");
+            string con = EditorPrefs.GetString(ConfigNameForPlayerPref.EDITOR_AB_INFO_KEY, "{}");
             selectAssetDic = con.ToNewtonObjectT<Dictionary<string, SelectAssetInfo>>();
+            #endregion
+
+            #region 初始化UI操作
+            editorUIFromPrefab = EditorPrefs.GetBool(ConfigNameForPlayerPref.EDITOR_UI_USE_FROM_PREFAB, false);
             #endregion
         }
 
@@ -488,7 +490,7 @@ namespace ZFramework.ZEditor
                 EditorGUILayout.EndHorizontal();
                 #endregion
 
-               
+
 
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
@@ -1161,6 +1163,14 @@ namespace ZFramework.ZEditor
             {
                 #region UI预制体操作
                 EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                bool res  = GUILayout.Toggle(editorUIFromPrefab, "是否直接从prefab获取内容（true:从prefab文件，false:从ab包里）");
+                if(res != editorUIFromPrefab)
+                {
+                    editorUIFromPrefab = res;
+                    EditorPrefs.SetBool(ConfigNameForPlayerPref.EDITOR_UI_USE_FROM_PREFAB, editorUIFromPrefab);
+                }
+                EditorGUILayout.Space();
                 EditorGUILayout.LabelField(config.UIPrePath + " 路径下的UI物体：", EditorStyles.boldLabel);
                 float uiScvHeight = uiPrefabInfos.Count < 25 ? uiPrefabInfos.Count * 20 : 500;
                 uiScrollviewPos = EditorGUILayout.BeginScrollView(uiScrollviewPos, GUILayout.MaxHeight(uiScvHeight));
@@ -1331,7 +1341,7 @@ namespace ZFramework.ZEditor
         /// </summary>
         private static void SaveAssetInfo()
         {
-            EditorPrefs.SetString(EDITOR_AB_INFO_KEY, selectAssetDic.ToNewtonJson());
+            EditorPrefs.SetString(ConfigNameForPlayerPref.EDITOR_AB_INFO_KEY, selectAssetDic.ToNewtonJson());
         }
 
         /// <summary>
@@ -1453,7 +1463,7 @@ namespace ZFramework.ZEditor
             /// <summary>
             /// 框架支持的全部平台
             /// </summary>
-            public readonly static string[] platforms = new string[] { "Windows", "Andriod", "IOS" };
+            public readonly static string[] platforms = new string[] { "Windows", "Android", "IOS" };
         }
 
         #endregion

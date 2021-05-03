@@ -215,22 +215,53 @@ namespace ZFramework.UI
             }
             if (!uiPrefabs.ContainsKey(prefabName))
             {
+                string uiPrefabPath = null;
+                string persPath = null;
 #if UNITY_EDITOR
+                uiPrefabPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
+                persPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.persistentDataPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
                 // 直接加载Prefab
-                string uiPrefabPath = string.Format("Assets/{0}/{1}.prefab", ConfigContent.configPath.UIPrePath, abName);
-                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(uiPrefabPath);
-#else
+                bool useFromPrefab = EditorPrefs.GetBool(ConfigNameForPlayerPref.EDITOR_UI_USE_FROM_PREFAB, false);
+                if (useFromPrefab)
+                {
+                    // 直接加载Prefab
+                    uiPrefabPath = string.Format("Assets/{0}/{1}.prefab", ConfigContent.configPath.UIPrePath, abName);
+                    prefab = AssetDatabase.LoadAssetAtPath<GameObject>(uiPrefabPath);
+                }
+                else
+                {
+                    if (File.Exists(persPath))
+                    {
+                        // 保证使用最新UI资源
+                        uiPrefabPath = persPath;
+                    }
+                    Debug.Log(uiPrefabPath);
+                    AssetBundle ab = AssetBundle.LoadFromFile(uiPrefabPath);
+                    prefab = ab.LoadAsset<GameObject>(assetName);
+                    ab.Unload(false);
+                }
+#elif UNITY_ANDROID
                 // 先查看 Application.persistentDataPath 下面有没有ab包，有的话就先使用 Application.persistentDataPath 下面的，
                 // 这样就保证使用最新更改过的原UI资源和打包进ab包里面的原最新UI脚本，如果是新添加的资源就不行了，就需要更新主程序
-                string uiPrefabPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.streamingAssetsPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
-                string persPath = string.Format("{0}/{1}/{2}/{3}.ab", Application.persistentDataPath, ConfigContent.configPath.AssetbundlePath, ConfigContent.CurrPlatform, abName);
+                uiPrefabPath = string.Format("jar:file://{0}!/assets/{1}/{2}.ab", Application.dataPath, ConfigContent.CurrPlatform, abName);
+                persPath = string.Format("jar:file://{0}/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName);
                 if (File.Exists(persPath))
                 {
                     // 保证使用最新UI资源
                     uiPrefabPath = persPath;
                 }
-                byte[] bs = uiPrefabPath.GetTextAssetContentByteArr();
-                AssetBundle ab = AssetBundle.LoadFromMemory(bs);
+                AssetBundle ab = AssetBundle.LoadFromFile(uiPrefabPath);
+                prefab = ab.LoadAsset<GameObject>(assetName);
+                ab.Unload(false);
+#elif UNITY_IPHONE
+                uiPrefabPath = string.Format("file://{0}/Raw/{1}/{2}.ab", Application.dataPath, ConfigContent.CurrPlatform, abName);
+                persPath = string.Format("file://{0}/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName);
+                if (File.Exists(persPath))
+                {
+                    // 保证使用最新UI资源
+                    uiPrefabPath = persPath;
+                }
+                AssetBundle ab = AssetBundle.LoadFromFile(uiPrefabPath);
                 prefab = ab.LoadAsset<GameObject>(assetName);
                 ab.Unload(false);
 #endif
@@ -324,13 +355,24 @@ namespace ZFramework.UI
             }
             uiPrefabs.Clear();
         }
+
+        /// <summary>
+        /// 设置屏幕的分辨率
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        private void SetCameraResolution(int width, int height)
+        {
+            if(uiRoot != null)
+            {
+                CanvasScaler cans = uiRoot.GetComponent<CanvasScaler>();
+                cans.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                cans.referenceResolution = new Vector2(width, height);
+            }
+        }
         #endregion
         
         #region IEnum
-        
-        #endregion
-        
-        #region Static Func
         
         #endregion
         
@@ -342,7 +384,7 @@ namespace ZFramework.UI
         {
             Instance.InitData();
             // 开启多线工具Loom的运行
-            Log.LogOperator.AddLogRecord("多线程工具开启");
+            Log.LogOperator.AddLogRecord("框架工具初始化以及开启多线工具Loom");
         }
 
         /// <summary>
@@ -402,6 +444,16 @@ namespace ZFramework.UI
         public static void ReleaseAllUI()
         {
             Instance.ReleaseAllUIPrefab();
+        }
+
+        /// <summary>
+        /// 设置屏幕的分辨率
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public static void SetResolution(int width,int height)
+        {
+            Instance.SetCameraResolution(width, height);
         }
         #endregion
 
