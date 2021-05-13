@@ -104,6 +104,14 @@ namespace ZFramework.UI
         }
 
         /// <summary>
+        /// 关闭自身
+        /// </summary>
+        protected virtual void CloseSelf()
+        {
+            // Pass
+        }
+
+        /// <summary>
         /// 销毁，对应OnDestroy
         /// </summary>
         protected virtual void OnBeforeDestroy()

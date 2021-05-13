@@ -240,11 +240,22 @@ namespace ZFramework.UI
                     prefab = ab.LoadAsset<GameObject>(assetName);
                     ab.Unload(false);
                 }
+#elif UNITY_EDITOR_WIN
+                uiPrefabPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.streamingAssetsPath, ConfigContent.CurrPlatform, abName.ToLower());
+                persPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName.ToLower());
+                if (File.Exists(persPath))
+                {
+                    // 保证使用最新UI资源
+                    uiPrefabPath = persPath;
+                }
+                AssetBundle ab = AssetBundle.LoadFromFile(uiPrefabPath);
+                prefab = ab.LoadAsset<GameObject>(assetName);
+                ab.Unload(false);
 #elif UNITY_ANDROID
                 // 先查看 Application.persistentDataPath 下面有没有ab包，有的话就先使用 Application.persistentDataPath 下面的，
                 // 这样就保证使用最新更改过的原UI资源和打包进ab包里面的原最新UI脚本，如果是新添加的资源就不行了，就需要更新主程序
-                uiPrefabPath = string.Format("jar:file://{0}!/assets/{1}/{2}.ab", Application.dataPath, ConfigContent.CurrPlatform, abName);
-                persPath = string.Format("jar:file://{0}/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName);
+                uiPrefabPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.streamingAssetsPath, ConfigContent.CurrPlatform, abName.ToLower());
+                persPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName.ToLower());
                 if (File.Exists(persPath))
                 {
                     // 保证使用最新UI资源
@@ -254,8 +265,8 @@ namespace ZFramework.UI
                 prefab = ab.LoadAsset<GameObject>(assetName);
                 ab.Unload(false);
 #elif UNITY_IPHONE
-                uiPrefabPath = string.Format("file://{0}/Raw/{1}/{2}.ab", Application.dataPath, ConfigContent.CurrPlatform, abName);
-                persPath = string.Format("file://{0}/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName);
+                uiPrefabPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.streamingAssetsPath, ConfigContent.CurrPlatform, abName.ToLower());
+                persPath = string.Format("{0}/Assetbundles/{1}/{2}.ab", Application.persistentDataPath, ConfigContent.CurrPlatform, abName);
                 if (File.Exists(persPath))
                 {
                     // 保证使用最新UI资源
@@ -268,6 +279,11 @@ namespace ZFramework.UI
                 uiPrefabs.Add(prefabName, prefab);
 
                 Debug.Log(">>>Open UI: " + uiPrefabPath);
+            }
+            else
+            {
+                prefab = uiPrefabs[prefabName];
+                Debug.Log(">>>Open UI: " + prefabName);
             }
             GameObject go = Instantiate(prefab, GetLevelTransform(level));
             uiGos.Add(prefabName, go);
@@ -284,6 +300,15 @@ namespace ZFramework.UI
         private void CloseUI<T>() where T : UIPanel
         {
             string uiName = typeof(T).Name;
+            CloseUI(uiName);
+        }
+
+        /// <summary>
+        /// 关闭UI
+        /// </summary>
+        /// <param name="uiName"></param>
+        private void CloseUI(string uiName)
+        {
             if (uiGos.ContainsKey(uiName))
             {
                 GameObject go = uiGos[uiName];
@@ -408,6 +433,15 @@ namespace ZFramework.UI
         public static void Close<T>() where T : UIPanel
         {
             Instance.CloseUI<T>();
+        }
+
+        /// <summary>
+        /// 关闭UI界面
+        /// </summary>
+        /// <param name="uiName"></param>
+        public static void Close(string uiName)
+        {
+            Instance.CloseUI(uiName);
         }
 
         /// <summary>

@@ -41,6 +41,14 @@ namespace ZFramework.UI
         }
 
         /// <summary>
+        /// CloseSelf
+        /// </summary>
+        protected override void CloseSelf()
+        {
+            UI.UIMgr.Close(this.GetType().Name);
+        }
+
+        /// <summary>
         /// OnDestroy
         /// </summary>
         protected override void OnBeforeDestroy()
