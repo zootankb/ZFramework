@@ -113,57 +113,76 @@ namespace ZFramework.UI
         /// </summary>
         private void InitData()
         {
-            uiRoot = new GameObject(UI_ROOT_NAME,
-                        typeof(RectTransform),
-                        typeof(Canvas),
-                        typeof(CanvasScaler),
-                        typeof(GraphicRaycaster));
-            Canvas canvas = uiRoot.GetComponent<Canvas>();
-            canvas.gameObject.layer = LayerMask.NameToLayer("UI");
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.pixelPerfect = true;
-            canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
-            CanvasScaler scaler = uiRoot.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            scaler.scaleFactor = 1;
-            scaler.referencePixelsPerUnit = 100;
-            GraphicRaycaster reycaster = uiRoot.GetComponent<GraphicRaycaster>();
-            reycaster.ignoreReversedGraphics = true;
-            reycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;
-
-            eventSystem = new GameObject(EVENT_SYSTEM, typeof(EventSystem), typeof(StandaloneInputModule));
-            EventSystem es = eventSystem.GetComponent<EventSystem>();
-            es.sendNavigationEvents = true;
-            es.pixelDragThreshold = 10;
-
-            uiRoot.transform.SetParent(transform);
-            eventSystem.transform.SetParent(transform);
-
-            Array levels = Enum.GetValues(typeof(UILevel));
-            foreach (var level in levels)
+            GameObject goPre = Resources.Load<GameObject>("UIRoot");
+            if (goPre == null)
             {
-                GameObject go = CreateUILevelGo((UILevel)level);
-                go.transform.SetParent(uiRoot.transform);
-                uiLevels.Add((UILevel)level, go);
-            }
+                uiRoot = new GameObject(UI_ROOT_NAME,
+                            typeof(RectTransform),
+                            typeof(Canvas),
+                            typeof(CanvasScaler),
+                            typeof(GraphicRaycaster));
+                Canvas canvas = uiRoot.GetComponent<Canvas>();
+                canvas.gameObject.layer = LayerMask.NameToLayer("UI");
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvas.pixelPerfect = true;
+                canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.None;
+                CanvasScaler scaler = uiRoot.GetComponent<CanvasScaler>();
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(Screen.width, Screen.height);
+                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                scaler.referencePixelsPerUnit = 1;
+                GraphicRaycaster reycaster = uiRoot.GetComponent<GraphicRaycaster>();
+                reycaster.ignoreReversedGraphics = true;
+                reycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;
 
-            GameObject camGo = new GameObject(UI_CAMERA, typeof(Camera));
-            camGo.transform.SetParent(transform);
-            uicamera = camGo.GetComponent<Camera>();
-            uicamera.clearFlags = CameraClearFlags.Skybox;
-            uicamera.backgroundColor = new Color(67f / 255, 67f / 255, 159f / 255);
-            uicamera.cullingMask = 1 << 5;  //只渲染UI层    
-            uicamera.orthographic = true;
-            uicamera.orthographicSize = 5;
-            uicamera.nearClipPlane = 0;
-            uicamera.pixelRect = new Rect(0, 0, Screen.width, Screen.height);
-            uicamera.targetTexture = null;
-            uicamera.farClipPlane = 1;
-            uicamera.depth = 0;
-            uicamera.useOcclusionCulling = true;
-            uicamera.allowHDR = true;
-            uicamera.allowMSAA = true;
-            uicamera.allowDynamicResolution = false;
+                eventSystem = new GameObject(EVENT_SYSTEM, typeof(EventSystem), typeof(StandaloneInputModule));
+                EventSystem es = eventSystem.GetComponent<EventSystem>();
+                es.sendNavigationEvents = true;
+                es.pixelDragThreshold = 10;
+
+                uiRoot.transform.SetParent(transform);
+                eventSystem.transform.SetParent(transform);
+
+                Array levels = Enum.GetValues(typeof(UILevel));
+                foreach (var level in levels)
+                {
+                    GameObject go = CreateUILevelGo((UILevel)level);
+                    go.transform.SetParent(uiRoot.transform);
+                    uiLevels.Add((UILevel)level, go);
+                }
+
+                GameObject camGo = new GameObject(UI_CAMERA, typeof(Camera));
+                camGo.transform.SetParent(transform);
+                uicamera = camGo.GetComponent<Camera>();
+                uicamera.clearFlags = CameraClearFlags.Skybox;
+                uicamera.backgroundColor = new Color(67f / 255, 67f / 255, 159f / 255);
+                uicamera.cullingMask = 1 << 5;  //只渲染UI层    
+                uicamera.orthographic = true;
+                uicamera.orthographicSize = Screen.height / 2;
+                uicamera.nearClipPlane = 0;
+                uicamera.pixelRect = new Rect(0, 0, Screen.width, Screen.height);
+                uicamera.targetTexture = null;
+                uicamera.farClipPlane = 1;
+                uicamera.depth = 0;
+                uicamera.useOcclusionCulling = true;
+                uicamera.allowHDR = true;
+                uicamera.allowMSAA = true;
+                uicamera.allowDynamicResolution = false;
+                uicamera.transform.position = new Vector3(Screen.width / 2, Screen.height / 2);
+                uicamera.renderingPath = RenderingPath.Forward;
+            }
+            else
+            {
+                uiRoot = Instantiate(goPre, transform);
+                uiRoot.name = goPre.name;
+                Array levels = Enum.GetValues(typeof(UILevel));
+                foreach (var level in levels)
+                {
+                    GameObject go = uiRoot.transform.Find(level.ToString()).gameObject;
+                    uiLevels.Add((UILevel)level, go);
+                }
+                uicamera = uiRoot.transform.Find("UICamera").GetComponent<Camera>();
+            }
         }
 
         /// <summary>
@@ -391,8 +410,8 @@ namespace ZFramework.UI
             if(uiRoot != null)
             {
                 CanvasScaler cans = uiRoot.GetComponent<CanvasScaler>();
-                cans.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
                 cans.referenceResolution = new Vector2(width, height);
+                cans.matchWidthOrHeight = 0;
             }
         }
         #endregion
