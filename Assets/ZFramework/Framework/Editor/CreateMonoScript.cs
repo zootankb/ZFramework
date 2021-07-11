@@ -44,6 +44,31 @@ namespace ZFramework.ZEditor
         /// <param name="savePathDir">保存主UI文件的文件夹</param>
         public static void CreateUIPanelScript(string uiName, Dictionary<string, string> fieldsOri,Dictionary<string, Dictionary<string, string>> fieldsDIY, string namespaceName, string savePathDir)
         {
+            // 先生成子UI脚本
+            foreach (var childUI in fieldsDIY)
+            {
+                string eleUIDirPath = string.Format("{0}/{1}", savePathDir, uiName);
+                eleUIDirPath.CheckOrCreateDir();
+                string eleUIPath = string.Format("{0}/{1}.cs", eleUIDirPath, childUI.Key);
+                string eleUIDesignerPath = string.Format("{0}/{1}.Designer.cs", eleUIDirPath, childUI.Key);
+                string eleUIContent = ScriptContentModel.UIElementScriptModel.
+                    Replace("{namespaceName}", namespaceName).
+                    Replace("{uiName}", uiName).
+                    Replace("{uielementName}", childUI.Key);
+                string eleUIFields = string.Join("\r\n", childUI.Value.Select(p => string.Format("\t\tpublic {0} {1};", p.Value, p.Key)));
+                string eleUIDesignerContent = ScriptContentModel.UIElementDesignerScriptModel.
+                    Replace("{namespaceName}", namespaceName).
+                    Replace("{uiName}", uiName).
+                    Replace("{uielementName}", childUI.Key).
+                    Replace("{field}", eleUIFields);
+                eleUIDesignerPath.WriteTextAssetContentStr(eleUIDesignerContent);
+                if (!File.Exists(eleUIPath))
+                {
+                    eleUIPath.WriteTextAssetContentStr(eleUIContent);
+                }
+            }
+
+            // 再生成主UI脚本
             string uiFieldStr = string.Empty;
             if(fieldsOri!=null && fieldsOri.Count > 0)
             {
@@ -65,29 +90,6 @@ namespace ZFramework.ZEditor
             {
                 // 不修改UI的逻辑
                 uiPath.WriteTextAssetContentStr(uiContentStr);
-            }
-            // 生成子UI脚本
-            foreach (var childUI in fieldsDIY)
-            {
-                string eleUIDirPath = string.Format("{0}/{1}", savePathDir, uiName);
-                eleUIDirPath.CheckOrCreateDir();
-                string eleUIPath = string.Format("{0}/{1}.cs", eleUIDirPath, childUI.Key);
-                string eleUIDesignerPath = string.Format("{0}/{1}.Designer.cs", eleUIDirPath, childUI.Key);
-                string eleUIContent = ScriptContentModel.UIElementScriptModel.
-                    Replace("{namespaceName}", namespaceName).
-                    Replace("{uiName}", uiName).
-                    Replace("{uielementName}", childUI.Key);
-                string eleUIFields = string.Join("\r\n", childUI.Value.Select(p => string.Format("\t\tpublic {0} {1};", p.Value, p.Key)));
-                string eleUIDesignerContent = ScriptContentModel.UIElementDesignerScriptModel.
-                    Replace("{namespaceName}", namespaceName).
-                    Replace("{uiName}", uiName).
-                    Replace("{uielementName}", childUI.Key).
-                    Replace("{field}", eleUIFields);
-                eleUIPath.WriteTextAssetContentStr(eleUIContent);
-                if (!File.Exists(eleUIDesignerPath))
-                {
-                    eleUIDesignerPath.WriteTextAssetContentStr(eleUIDesignerContent);
-                }
             }
         }
         /// <summary>

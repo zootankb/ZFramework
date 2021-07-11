@@ -4,7 +4,7 @@ using UnityEngine;
 using ZFramework.UI;
 using ZFramework.ClassExt;
 using System.IO;
-using ZFramework.App;
+//using ZFramework.App;
 
 public class TestUIMgrOpen : MonoBehaviour
 {
@@ -12,6 +12,6 @@ public class TestUIMgrOpen : MonoBehaviour
     void Start()
     {
         UIMgr.Init();
-        UIMgr.Open<TestOneUIPanel>();
+        //UIMgr.Open<TestOneUIPanel>();
     }
 }

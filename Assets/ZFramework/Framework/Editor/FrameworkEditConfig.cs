@@ -333,10 +333,36 @@ namespace ZFramework.ZEditor
                         }
                     }
                     CreateMonoScript.CreateUIPanelScript(acGos[i].name, mainUIFields, childsUIFields, cfgcont.FrameworkNamespace, string.Format("{0}/{1}", Application.dataPath, cfgcont.UIScriptPath));
-                    AssetDatabase.Refresh();
-                    BoundUIBindField.Bound(acGos[i], fields);
+                }
+                Debug.Log("构建脚本时不要点击任何地方");
+                AssetDatabase.Refresh(ImportAssetOptions.Default);
+            }
+        }
+
+        /// <summary>
+        /// 脚本构建后的回调，用于赋值新的预制体
+        /// </summary>
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void ScriptsBuiltCallback()
+        {
+            string[] guids = Selection.assetGUIDs;
+            if (guids.Length > 0)
+            {
+                string json = ZFramework.ConfigContent.CONFIG_FILE_PATH.GetTextAssetContentStr();
+                var tcon = json.ToNewtonObjectT<ConfigContent>();
+                string uiPreDirPath = Path.Combine(Application.dataPath, tcon.UIPrePath);
+                foreach (var guid in guids)
+                {
+                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                    string assetName = Path.GetFileName(assetPath);
+                    if (File.Exists(Path.Combine(uiPreDirPath, assetName)))
+                    {
+                        GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                        BoundUIBindField.Bound(go);
+                    }
                 }
             }
+            Debug.Log("Scripts built callback");
         }
         #endregion
 

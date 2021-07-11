@@ -20,7 +20,7 @@ namespace ZFramework.ZEditor
         /// </summary>
         /// <param name="go"></param>
         /// <param name="fields">属性信息</param>
-        public static void Bound(GameObject go, Dictionary<string, UIBind> fields)
+        public static void Bound(GameObject go)
         {
             // 创建好脚本之后就要给物体添加好创建的脚本，并把各种属性自动赋值到创建好的脚本属性中
             // 寻找目标脚本类型
@@ -51,9 +51,18 @@ namespace ZFramework.ZEditor
             }
             if (targetT != null)
             {
+                //AssetDatabase.StartAssetEditing();
                 GameObject newPrefab = PrefabUtility.InstantiatePrefab(go) as GameObject;
+               // GameObject newPrefab = go;
+                Dictionary<string, UIBind> fields = UI.UIBind.GetFieldNameAndType(newPrefab);
                 try
                 {
+                    // 添加主UI脚本
+                    Component mainUICom = newPrefab.GetComponent(targetT);
+                    if (mainUICom == null)
+                    {
+                        mainUICom = newPrefab.AddComponent(targetT);
+                    }
                     // 把所有的脚本都挂上，不包括包括主UI，因为fields里面没有主UI的信息
                     foreach (var childUI in uiScriptTypes)
                     {
@@ -66,12 +75,7 @@ namespace ZFramework.ZEditor
                             }
                         }
                     }
-                    // 添加主UI脚本
-                    Component mainUICom = newPrefab.GetComponent(targetT);
-                    if (mainUICom == null)
-                    {
-                        mainUICom = newPrefab.AddComponent(targetT);
-                    }
+                    
                     // 主UI脚本里面的属性
                     Dictionary<string, FieldInfo> fs = targetT.GetFields().ToDictionary(p => p.Name, p => p);
                     // 主UI脚本里面的属性实体
@@ -207,8 +211,8 @@ namespace ZFramework.ZEditor
                         Debug.LogFormat("--------Succeed Create {0}'s {1} script and bind ui component!!--------", go.name, eleUIBind.uiName);
                     }
                     string prefabPath = AssetDatabase.GetAssetPath(go);
-                    bool isSuccess = false;
-                    PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath, out isSuccess);
+                    PrefabUtility.SaveAsPrefabAssetAndConnect(newPrefab, prefabPath, InteractionMode.UserAction);
+                    MonoBehaviour.DestroyImmediate(newPrefab);
                     Debug.LogFormat("--------Succeed Create {0}'s all scripts and bind ui component!!--------", go.name);
                 }
                 catch(Exception e)
@@ -217,7 +221,8 @@ namespace ZFramework.ZEditor
                 }
                 finally
                 {
-                    UnityEngine.Object.DestroyImmediate(newPrefab);
+                    //UnityEngine.Object.DestroyImmediate(newPrefab);
+                    //AssetDatabase.StopAssetEditing();
                 }
             }
         }
